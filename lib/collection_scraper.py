@@ -14,8 +14,8 @@ from queue import Queue
 class CollectionScraper():
     def __init__(self, records_dir):
         self.queue = Queue(maxsize=0)
-        self.download_dir = '../records/tmp'
-        self.collection_generator = CollectionGenerator(output_dir='../records/collections')
+        self.download_dir = records_dir + '/tmp'
+        self.collection_generator = CollectionGenerator(output_dir=records_dir + '/collections')
 
     def dataset_download_url(self, dataset_catalog, dataset):
         return(dataset_catalog.iso_md_url(dataset))

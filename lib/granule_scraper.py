@@ -14,9 +14,9 @@ from queue import Queue
 
 
 class GranuleScraper():
-    def __init__(self):
+    def __init__(self, records_dir):
         self.queue = Queue(maxsize=0)
-        self.download_dir = '../records/granules'
+        self.download_dir = records_dir + '/granules'
 
     def dataset_download_file(self, dataset):
         # collection_name = re.sub(timestamp_re.date_time, '', dataset.name)

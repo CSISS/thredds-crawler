@@ -1,5 +1,5 @@
 import sys
-assert sys.version_info >= (3,6)
+assert sys.version_info >= (3,5)
 
 import datetime
 import json

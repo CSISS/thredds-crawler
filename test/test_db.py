@@ -1,5 +1,5 @@
 import sys, os
-assert sys.version_info >= (3,6)
+assert sys.version_info >= (3,5)
 
 from datetime import datetime, timedelta
 

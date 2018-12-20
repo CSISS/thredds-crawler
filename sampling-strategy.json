@@ -1,0 +1,10 @@
+{
+	"catalog": "http://thredds.ucar.edu/thredds/catalog.xml",
+	"harvest": "granules",
+	"subsets": 	[
+		{
+			"refpath": ["NEXRAD Level III Radar", "*", "*"],
+			"harvest": "collections?"
+		}
+	]
+}

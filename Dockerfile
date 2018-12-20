@@ -1,18 +1,21 @@
-FROM python:3.6-alpine
+FROM csiss/pycsw
+
+USER root
+
+COPY ./requirements.txt /tmp/thredds-harvester-indexer-requirements.txt
+
+# RUN apk add --no-cache gcc g++ libxslt-dev
+RUN pip3 install --requirement /tmp/thredds-harvester-indexer-requirements.txt
 
 COPY . /opt/thredds-harvester-indexer
 
-RUN apk add --no-cache gcc g++ libxslt-dev
-RUN pip install --requirement /opt/thredds-harvester-indexer/requirements.txt
-
-
-RUN adduser -D -u 1000 harvester
+# RUN adduser -D -u 1000 harvester
 RUN mkdir /records
-RUN chown -R harvester:harvester /records
+RUN chown -R pycsw:pycsw /records
 VOLUME /records
 
-USER harvester
+USER pycsw
 WORKDIR /opt/thredds-harvester-indexer
 EXPOSE 8000
 
-CMD ["/bin/ash", "run_in_container.sh"]
+ENTRYPOINT ["/bin/ash", "run_in_container.sh"]

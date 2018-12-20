@@ -12,17 +12,17 @@ from queue import Queue
 
 
 class CollectionScraper():
-    def __init__(self, records_dir):
+    def __init__(self, output_dir, tmp_dir):
         self.queue = Queue(maxsize=0)
-        self.download_dir = records_dir + '/tmp'
-        self.collection_generator = CollectionGenerator(output_dir=records_dir + '/collections')
+        self.tmp_dir = tmp_dir
+        self.collection_generator = CollectionGenerator(output_dir=output_dir)
 
     def dataset_download_url(self, dataset_catalog, dataset):
         return(dataset_catalog.iso_md_url(dataset))
 
     def dataset_download_file(self, dataset):
         # collection_name = re.sub(timestamp_re.date_time, '', dataset.name)
-        file = self.download_dir + "/" + slugify(dataset.name) + ".iso.xml"
+        file = self.tmp_dir + "/" + slugify(dataset.name) + ".iso.xml"
         return(file)
 
 

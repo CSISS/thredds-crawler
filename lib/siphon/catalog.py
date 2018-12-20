@@ -251,6 +251,7 @@ class TDSCatalog(object):
                 catalog_url = self.catalog_url
 
         ds = Dataset(element, catalog_url=catalog_url)
+        
         self.datasets[ds.name] = ds
 
     def _process_catalog_ref(self, element):
@@ -273,6 +274,9 @@ class TDSCatalog(object):
             if has_url_path or is_ds_with_access_elements_to_process:
                 self.datasets[dsName].make_access_urls(
                     self.base_tds_url, self.services, metadata=self.metadata)
+
+                ds = self.datasets[dsName]
+                ds.iso_md_url = self.iso_md_url(ds)
             else:
                 self.datasets.pop(dsName)
 
@@ -401,6 +405,7 @@ class Dataset(object):
 
         self.catalog_name = ''
 
+        self.iso_md_url = 'unknown'
 
         self.access_element_info = {}
         self._resolved = False

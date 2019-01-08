@@ -3,7 +3,6 @@ import re
 from .siphon.catalog import TDSCatalog, Dataset
 
 from .timestamp_util import timestamp_re, timestamp_parser
-from . import siphon_ext
 
 from .util import slugify, http_getfile
 

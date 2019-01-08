@@ -5,7 +5,7 @@ import datetime
 import json
 
 
-from lib.threaded_harvester import ThreadedHarvester
+from lib.harvester import Harvester
 from lib.collection_granule_indexer import CollectionGranuleIndexer
 
 from lib.siphon.catalog import TDSCatalog, Dataset
@@ -16,7 +16,6 @@ from lib.timestamp_util import timestamp_parser
 
 
 class GranulesIndex():
-
     def __init__(self, base_dir):
         self.db = IndexDB("sqlite:///" + base_dir + "/thredds_granule_index.db", False)
 
@@ -46,10 +45,9 @@ class GranulesIndex():
             return
 
         indexer = CollectionGranuleIndexer()
-        harvester = ThreadedHarvester(indexer, 40, 10)
-        catalog = TDSCatalog(collection_xml_url)
+        harvester = Harvester(indexer, 40, 10)
 
-        harvester.harvest(catalog.catalog_refs.values())
+        harvester.harvest(collection_xml_url)
         results = indexer.indexes
         
         self.db.index_collection_granules(collection_name, collection_xml_url, results)

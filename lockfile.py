@@ -39,29 +39,30 @@ def mkdir_p(dirpath):
     pathlib.Path(dirpath).mkdir(parents=True, exist_ok=True)
 
 
-def do_harvest(catalog_url, harvest_type, job_id):
-    # PSEUDOCODE
-    cat = TDSCatalog(catalog_url)
+# def do_harvest(base_dir, catalog_url, harvest_type, job_id):
+#     # PSEUDOCODE
+#     cat = TDSCatalog(catalog_url)
 
 
 
-    if harvest_type == 'granules':
-        output_dir = RECORDS_DIR + '/granules.' + job_id
-        mkdir_p(output_dir)
+#     if harvest_type == 'granules':
+#         output_dir = base_dir + '/granules.' + job_id
+#         mkdir_p(output_dir)
 
-        scraper = GranuleScraper(output_dir)
-    else:
-        output_dir = RECORDS_DIR + '/collection.' + job_id
-        tmp_dir = output_dir + '.tmp'
-        mkdir_p(output_dir)
-        mkdir_p(tmp_dir)
+#         scraper = GranuleScraper(output_dir)
+#     else:
+#         output_dir = base_dir + '/collections.' + job_id
+#         tmp_dir = output_dir + '.tmp'
+#         mkdir_p(output_dir)
+#         mkdir_p(tmp_dir)
 
-        scraper = CollectionScraper(output_dir, tmp_dir)
+#         scraper = CollectionScraper(output_dir, tmp_dir)
 
-    harvester = ThreadedHarvester(scraper, 20, 1)
-    harvester.harvest(cat.catalog_refs.values())
+#     harvester = ThreadedHarvester(scraper, 40, 1)
+#     harvester.harvest(cat)
 
-    return output_dir
+
+#     return output_dir
 
 
 
@@ -113,7 +114,6 @@ def do_harvest(catalog_url, harvest_type, job_id):
     # finally:
     #     delete_lock(item_type)
 
-RECORDS_DIR = 'records'
 
-if __name__ == '__main__':
-    do_harvest(sys.argv[1])
+# if __name__ == '__main__':
+#     do_harvest('records', sys.argv[1])

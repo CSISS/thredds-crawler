@@ -7,6 +7,7 @@ from lxml import etree as ETree
 
 from .xml_editor import XMLEditor
 from .timestamp_util import timestamp_re, timestamp_range_generator
+from  .util import  slugify
 
 
 class CollectionGenerator():
@@ -102,7 +103,7 @@ class CollectionGenerator():
 
         self.set_collection_temporal_extent(collection_catalog, collection_xml_doc)
 
-        collection_file = self.output_dir + '/' + template_keywords['title'] + '.xml'
+        collection_file = self.output_dir + '/' + slugify(template_keywords['title']) + '.xml'
 
         collection_xml_doc.tofile(collection_file)
         print("generated %s" % collection_file)

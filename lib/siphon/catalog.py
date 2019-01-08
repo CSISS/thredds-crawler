@@ -18,6 +18,8 @@ except ImportError:
     # Python 3
     from urllib.parse import urljoin, urlparse
 
+import urllib
+
 from .http_util import create_http_session, urlopen
 from .metadata import TDSCatalogMetadata
 
@@ -309,6 +311,14 @@ class TDSCatalog(object):
             print("bad iso_md_url", self.catalog_url, ds.id)
             print(e)
             return ""
+
+
+    def follow_refs(self, *names):
+        catalog = self
+        for n in names:
+            catalog = catalog.catalog_refs[n].follow()
+        return catalog
+
 
 
 class CatalogRef(object):

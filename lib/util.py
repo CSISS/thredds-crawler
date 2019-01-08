@@ -2,6 +2,8 @@ import re
 import urllib.request
 import os
 
+import pathlib
+
 def http_getfile(url, file):
     # print("http_getfile %s" % url)
     # if(not os.path.isfile(file)):
@@ -18,3 +20,7 @@ def slugify(value):
     value = re.sub('[^\w\s-]', '', value).strip().lower()
     value = re.sub('[-\s]+', '-', value)
     return value
+
+
+def mkdir_p(dirpath):
+    pathlib.Path(dirpath).mkdir(parents=True, exist_ok=True)

@@ -1,35 +1,19 @@
 from .siphon.catalog import TDSCatalog, Dataset, CatalogRef
 
-# from .timestamp_util import timestamp_re
-# from .collection_generator import CollectionGenerator
-from . import siphon_ext
-
 from .util import slugify, http_getfile
 from .timestamp_util import timestamp_re
-
+from .base_scraper import BaseScraper
 from .xml_editor import XMLEditor
 
 
 from queue import Queue
 
 
-class GranuleScraper():
+class GranuleScraper(BaseScraper):
     def __init__(self, output_dir):
-        self.queue = Queue(maxsize=0)
+        super().__init__()
+
         self.download_dir = output_dir
-
-
-    def add_queue_item(self, item):
-        self.queue.put(item)
-
-
-    def process_queued_item(self, item):
-        if(type(item) == TDSCatalog):
-            self.process_catalog(item)
-        elif(type(item) == CatalogRef):
-            self.process_catalog_ref(item)
-        elif(type(item) == Dataset):
-            self.process_dataset(item)
 
 
     def process_catalog(self, catalog):

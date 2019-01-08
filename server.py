@@ -10,6 +10,9 @@ import threading
 
 import os
 
+import datetime
+
+
 from flask import Flask, request
 from flask_restful import Resource, Api
 
@@ -17,7 +20,29 @@ import uuid
 
 
 from granules_index import GranulesIndex
-import harvest
+
+from lib.pycsw_helper import PycswHelper
+from lib.harvester import Harvester
+
+from lib.granule_scraper import GranuleScraper
+from lib.collection_scraper import CollectionScraper
+from lib.timestamp_util import timestamp_range_generator
+
+from lib.util import mkdir_p
+
+# from logging import info, debug,error
+
+import logging
+
+
+class PurgeExpiredResource(Resource):
+    def post(self): 
+        expired_date = timestamp_range_generator(14).start
+        # expired_date = datetime.datetime.today() - datetime.timedelta(minutes=1)
+    
+
+        PycswHelper().delete_records({'where': 'TO_TIMESTAMP(records.insert_date, \'YYYY-MM-DDTHH:MI:SS\') <  TIMESTAMP \'' + str(expired_date) + '\'', 'values': []})
+        return("purged expired (older than 14 days) records")
 
 
 class GranulesIndexResource(Resource):
@@ -45,28 +70,37 @@ class GranulesIndexResource(Resource):
         # result = ""
         return result
 
+
 class HarvestResource(Resource):
     def post(self, harvest_type):
         job_id = str(uuid.uuid4())[:8] # short id for uniqueness
         
         catalog_url = request.form['catalog_url']
-        
-        records_dir = harvest.do_harvest(catalog_url, harvest_type, job_id)
 
-        return(records_dir)
+        if harvest_type == 'granules':
+            output_dir = RECORDS_DIR + '/granules.' + job_id
+            mkdir_p(output_dir)
 
+            scraper = GranuleScraper(output_dir)
+        else:
+            output_dir = RECORDS_DIR + '/collections.' + job_id
+            tmp_dir = output_dir + '.tmp'
+            mkdir_p(output_dir)
+            mkdir_p(tmp_dir)
 
+            scraper = CollectionScraper(output_dir, tmp_dir)
 
-        # harvest
-        # t = threading.Thread(target=harvest.do_harvest,args=(item_type,))
-        # t.start()
-        # return("started harvesting " + item_type + "...")
+        # begin harvest
+        harvester = Harvester(scraper, 40, 1)
+        harvester.harvest(catalog_url)
+     
+        # complete
+        print("harvest complete. importing %s" % output_dir)
 
-    # def get(self, item_type):
-    #     if(harvest.exists_lock(item_type)):
-    #         return("harvesting")
-    #     else:
-    #         return("done")
+        # load recortds
+        PycswHelper().load_records(output_dir)
+        return("harvested and loaded " + output_dir)
+
 
 
 ###############################
@@ -84,13 +118,18 @@ api = Api(application)
 
 
 
-api.add_resource(GranulesIndexResource, '/granules_index') # Route_1
-api.add_resource(HarvestResource, '/harvest/<string:harvest_type>') # Route_1
+api.add_resource(GranulesIndexResource, '/granules_index')
+api.add_resource(HarvestResource, '/harvest/<string:harvest_type>')
+api.add_resource(PurgeExpiredResource, '/purge_expired')
 
 # harvest.delete_lock('granules')
 # harvest.delete_lock('collections')
 
 if __name__ == '__main__':
     print("starting application on port 8002")
-    application.run(port='8002', debug=True)
+    application.run(port='8002', debug=False)
+else:
+    gunicorn_logger = logging.getLogger('gunicorn.error')
+    application.logger.handlers = gunicorn_logger.handlers
+    application.logger.setLevel(gunicorn_logger.level)
      

@@ -45,7 +45,10 @@ class GranuleScraper(BaseScraper):
 
     def correct_metadata_file(self, ds, file):
         xml = XMLEditor.fromfile(file)
-        xml.update_xpath_text('/gmi:MI_Metadata/gmd:fileIdentifier/gco:CharacterString', ds.id)
+
+        file_identifier = "<gco:CharacterString xmlns:gco=\"http://www.isotc211.org/2005/gco\">%s</gco:CharacterString>" % ds.authority_ns_id
+        xml.update_xpath_fromstring('/gmi:MI_Metadata/gmd:fileIdentifier', file_identifier)
+
         xml.tofile(file)
 
     # def harvest_catalog_granules(self, catalog_ref):

@@ -1,18 +1,18 @@
 import re
 
-from .siphon.catalog import TDSCatalog, Dataset
-
-from .timestamp_util import timestamp_re, timestamp_parser
-
-from .util import slugify, http_getfile
 
 from queue import Queue
 
 from datetime import datetime, timedelta
 
+from .siphon.catalog import TDSCatalog, Dataset
+
+from .base_scraper import BaseScraper
+from .timestamp_util import timestamp_re, timestamp_parser
+from .util import slugify, http_getfile
 
 
-class CollectionGranuleIndexer():
+class CollectionGranuleIndexer(BaseScraper):
     def __init__(self):
         self.queue = Queue(maxsize=0)
         self.download_dir = '../records/scraped'
@@ -38,23 +38,30 @@ class CollectionGranuleIndexer():
         return result
 
 
-    def index_dataset(self, catalog, ds):
+    def index_dataset(self, ds):
         # print("index ds %s" % ds.id)
         # print(ds.time_coverage)
-        iso_url = catalog.iso_md_url(ds)
         access_url = ds.access_urls.get('HTTPServer') or ds.access_urls.get('OPENDAP')
 
         start, end = self.time_coverage_to_time_span(**ds.time_coverage)
-        result = {'name': ds.id, 'iso_url': iso_url, 'access_url': access_url, 'time_start': start, 'time_end': end}
+        result = {'name': ds.authority_ns_id, 'iso_url': ds.iso_md_url, 'access_url': access_url, 'time_start': start, 'time_end': end}
         self.indexes.append(result)
 
-    def scrape_catalog(self, catalog):
-        # print("TRAVERSE  %s" % catalog.ref_name)
-        for ref_name, ref in catalog.catalog_refs.items():
-            self.queue.put(ref)
-
+        
+    def process_catalog(self, catalog):
+        print("process catalog " + catalog.catalog_url)
         for ds_name, ds in catalog.datasets.items():
-            if(timestamp_re.search_date(ds_name) != None):
-                self.index_dataset(catalog, ds)
-            
+            self.add_queue_item(ds)
+ 
+        for ref_name, ref in catalog.catalog_refs.items():
+            self.add_queue_item(ref)
 
+    def process_catalog_ref(self, catalog_ref):
+        print("process catalog_ref " + catalog_ref.href)
+        catalog = catalog_ref.follow()
+        self.add_queue_item(catalog)
+
+    def process_dataset(self, ds):
+        if(timestamp_re.search_date(ds.name) != None):
+            print("index dataset id %s" % ds.id)
+            self.index_dataset(ds)

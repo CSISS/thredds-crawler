@@ -252,7 +252,7 @@ class TDSCatalog(object):
             if element.attrib['urlPath'] == 'latest.xml':
                 catalog_url = self.catalog_url
 
-        ds = Dataset(element, catalog_url=catalog_url)
+        ds = Dataset(element, catalog_url=catalog_url, catalog=self)
         
         self.datasets[ds.name] = ds
 
@@ -279,6 +279,8 @@ class TDSCatalog(object):
 
                 ds = self.datasets[dsName]
                 ds.iso_md_url = self.iso_md_url(ds)
+                ds.set_authority_namespace_id()
+
             else:
                 self.datasets.pop(dsName)
 
@@ -313,14 +315,6 @@ class TDSCatalog(object):
             return ""
 
 
-    def follow_refs(self, *names):
-        catalog = self
-        for n in names:
-            catalog = catalog.catalog_refs[n].follow()
-        return catalog
-
-
-
 class CatalogRef(object):
     """
     An object for holding catalog references obtained from a THREDDS Client Catalog.
@@ -350,6 +344,7 @@ class CatalogRef(object):
         """
         self.title = element_node.attrib['{http://www.w3.org/1999/xlink}title']
         self.name = element_node.attrib.get('name', self.title)
+        self.catalog = None
 
         # Resolve relative URLs
         href = element_node.attrib['{http://www.w3.org/1999/xlink}href']
@@ -390,7 +385,7 @@ class Dataset(object):
 
     """
 
-    def __init__(self, element_node, catalog_url=''):
+    def __init__(self, element_node, catalog_url='', catalog=None):
         """Initialize the Dataset object.
 
         Parameters
@@ -414,6 +409,7 @@ class Dataset(object):
             self.url_path = None
 
         self.catalog_name = ''
+        self.catalog = catalog
 
         self.iso_md_url = 'unknown'
 
@@ -437,6 +433,14 @@ class Dataset(object):
         """Return a string representation of the dataset."""
         return str(self.name)
 
+    def set_authority_namespace_id(self):
+        if self.catalog:
+            try:
+                authority = self.catalog.metadata['authority'][0]
+                self.authority_ns_id = authority + ':' + self.id
+            except (IndexError, KeyError):
+                self.authority_ns_id = self.id
+
     def resolve_time_coverage(element):
         time_coverage = {'start': None, 'end': None, 'duration': None}
 
@@ -453,7 +457,6 @@ class Dataset(object):
                 time_coverage[field] = tc_element.findtext('{http://www.unidata.ucar.edu/namespaces/thredds/InvCatalog/v1.0}' + field)
 
         return time_coverage
-
 
 
     def resolve_url(self, catalog_url):

@@ -4,7 +4,7 @@ import sys
 from queue import Queue, Empty
 import traceback
 
-from .siphon.catalog import TDSCatalog
+from .siphon.catalog import TDSCatalog, Dataset
 
 
 class Harvester():
@@ -37,12 +37,18 @@ class Harvester():
                 print("%s timed out" % thread_name)
                 return
 
-    def harvest(self, catalog_url):
+    def harvest(self, catalog_url, dataset_name=None):
         # Ctrl+\
         # signal.signal(signal.SIGQUIT, self.dump_thread_stacks)
 
         catalog = TDSCatalog(catalog_url)
-        self.scraper.queue.put(catalog)         
+
+        if dataset_name:
+            print("selected dataset " + dataset_name)
+            self.scraper.queue.put(catalog.datasets[dataset_name])
+        else:
+            self.scraper.queue.put(catalog)
+
 
         self.threads = []
         print("Starting %d threads" % self.num_workers)

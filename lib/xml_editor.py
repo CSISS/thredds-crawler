@@ -2,10 +2,12 @@ from lxml import etree as ETree
 
 
 class XMLEditor():
-    iso_namespaces = {'gco': "http://www.isotc211.org/2005/gco", 
+    iso_namespaces = {
+    'gco': "http://www.isotc211.org/2005/gco", 
     'gmd': "http://www.isotc211.org/2005/gmd", 
     'gmi': "http://www.isotc211.org/2005/gmi", 
     'gml': "http://www.opengis.net/gml/3.2"}
+
 
     def __init__(self, xml):
         xml = xml.encode('utf-8')
@@ -48,7 +50,4 @@ class XMLEditor():
 
     def update_xpath_text(self, xpath, text):
         self.safe_xpath_element(xpath).text = text
-
-
-
 

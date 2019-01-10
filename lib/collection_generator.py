@@ -28,7 +28,7 @@ class CollectionGenerator():
         title = re.sub(file_timestamp_re, '', title) # '20181023/Level3_YUX_PTA_20181023_2358' -> 'Level3_YUX_PTA_20181023_2358'
 
         
-        file_identifier = re.sub(timestamp_re.date_time, '', dataset.id)
+        file_identifier = re.sub(timestamp_re.date_time, '', dataset.authority_ns_id)
         file_identifier = re.sub(file_ext_re, '', file_identifier) # '_.grib2' -> ''
         file_identifier = re.sub(file_timestamp_re, '', file_identifier) # '20181023/Level3_YUX_PTA_20181023_2358' -> 'Level3_YUX_PTA_20181023_2358'
 

@@ -48,13 +48,12 @@ class PurgeExpiredResource(Resource):
 class GranulesIndexResource(Resource):
     def post(self):
         # get params
-        collection_name = request.form['collection_name']  
+        collection_name = request.form['collection_name']
         catalog_url = request.form['catalog_url']
 
-        result = collection_xml_url
-        result = granules_index.index(collection_name, catalog_url)
+        result = granules_index.update_index(collection_name, catalog_url)
 
-        print(result)
+        print(result, flush=True)
         return result
 
     def get(self):
@@ -65,9 +64,10 @@ class GranulesIndexResource(Resource):
         print(catalog_url)
         print(start_time)
         print(end_time)
-        result = granules_index.get(catalog_url, start_time, end_time)
+        result = granules_index.get_index(catalog_url, start_time, end_time)
 
         # result = ""
+        print("got index for %s" % catalog_url, flush=True)
         return result
 
 
@@ -76,6 +76,7 @@ class HarvestResource(Resource):
         job_id = str(uuid.uuid4())[:8] # short id for uniqueness
         
         catalog_url = request.form['catalog_url']
+        dataset_name = request.form.get('dataset_name', None)
 
         if harvest_type == 'granules':
             output_dir = RECORDS_DIR + '/granules.' + job_id
@@ -92,13 +93,14 @@ class HarvestResource(Resource):
 
         # begin harvest
         harvester = Harvester(scraper, 40, 1)
-        harvester.harvest(catalog_url)
+        harvester.harvest(catalog_url=catalog_url, dataset_name=dataset_name)
      
         # complete
-        print("harvest complete. importing %s" % output_dir)
+        print("harvest complete. importing %s" % output_dir, flush=True)
 
-        # load recortds
+        # load records
         PycswHelper().load_records(output_dir)
+        print("records loaded", flush=True)
         return("harvested and loaded " + output_dir)
 
 
@@ -127,7 +129,7 @@ api.add_resource(PurgeExpiredResource, '/purge_expired')
 
 if __name__ == '__main__':
     print("starting application on port 8002")
-    application.run(port='8002', debug=False)
+    application.run(port='8002', debug=True)
 else:
     gunicorn_logger = logging.getLogger('gunicorn.error')
     application.logger.handlers = gunicorn_logger.handlers

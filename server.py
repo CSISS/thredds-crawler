@@ -92,11 +92,13 @@ class HarvestResource(Resource):
             scraper = CollectionScraper(output_dir, tmp_dir)
 
         # begin harvest
-        harvester = Harvester(scraper, 40, 1)
+        harvester = Harvester(scraper, 40, 5)
         harvester.harvest(catalog_url=catalog_url, dataset_name=dataset_name)
      
         # complete
-        print("harvest complete. importing %s" % output_dir, flush=True)
+        print("harvest complete", flush=True)
+        print("importing %s" % output_dir, flush=True)
+        print("")
 
         # load records
         PycswHelper().load_records(output_dir)

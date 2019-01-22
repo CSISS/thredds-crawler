@@ -2,6 +2,13 @@ from ..siphon.catalog import TDSCatalog, Dataset, CatalogRef
 
 from queue import Queue
 
+def fread(path):
+    with open(path, 'r') as f:
+        return(f.read())
+
+def fwrite(path, text):
+    with open(path, 'w') as f:
+        f.write(text)
 
 class BaseScraper():
     def __init__(self):
@@ -20,14 +27,10 @@ class BaseScraper():
             self.process_dataset(item)
 
 
-    def apply_filter(self, fl, ds, file):
-        if not fl.is_required():
-            return
-
-        with open(file, 'r') as f:
-            text = f.read()
+    def apply_filter(self, fl, ds, path):
+        text = fread(path)
         
-        text = fl.apply(ds, text)
-        
-        with open(file, 'w') as f:
-            f.write(text)
+        if fl.is_required(ds, text):
+            text = fl.apply(ds, text)
+            fwrite(path, text)
+       

@@ -9,14 +9,15 @@ from .xml_editor import XMLEditor
 from ..util.datetime import timestamp_re, timestamp_range_generator
 from ..util.path import slugify
 
+iso_template_path = os.path.join(os.path.dirname(__file__), "../../templates/unidata-thredds-collection.xml.template")
+
 
 class GranuleToCollection():
     def __init__(self, output_dir='../records/collections'):
-        iso_template_path = os.path.join(os.path.dirname(__file__), "../templates/unidata-thredds-collection.xml.template")
         template_string = open(iso_template_path, "r").read()
         self.template = string.Template(template_string)
         self.output_dir = output_dir
-        print("Using template '%s' to generate ISO metadata" % iso_template_path)
+        # print("Using template '%s' to generate ISO metadata" % iso_template_path)
 
 
     def generate_template_keywords(self, collection_catalog, dataset, url, xml_doc):

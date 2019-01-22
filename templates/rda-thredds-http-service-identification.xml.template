@@ -1,0 +1,118 @@
+<gmd:identificationInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                 xmlns:gco="http://www.isotc211.org/2005/gco"
+                 xmlns:gmd="http://www.isotc211.org/2005/gmd"
+                 xmlns:gmi="http://www.isotc211.org/2005/gmi"
+                 xmlns:srv="http://www.isotc211.org/2005/srv"
+                 xmlns:gmx="http://www.isotc211.org/2005/gmx"
+                 xmlns:gsr="http://www.isotc211.org/2005/gsr"
+                 xmlns:gss="http://www.isotc211.org/2005/gss"
+                 xmlns:gts="http://www.isotc211.org/2005/gts"
+                 xmlns:gml="http://www.opengis.net/gml/3.2"
+                 xmlns:xlink="http://www.w3.org/1999/xlink"
+                 xmlns:xs="http://www.w3.org/2001/XMLSchema">
+   <srv:SV_ServiceIdentification id="THREDDS_HTTP_Service">
+      <gmd:citation>
+         <gmd:CI_Citation>
+            <gmd:title>
+               <gco:CharacterString>$title</gco:CharacterString>
+            </gmd:title>
+            <gmd:date gco:nilReason="missing"/>
+            <gmd:citedResponsibleParty>
+               <gmd:CI_ResponsibleParty>
+                  <gmd:individualName>
+                     <gco:CharacterString>DOC/NOAA/NWS/NCEP</gco:CharacterString>
+                  </gmd:individualName>
+                  <gmd:organisationName gco:nilReason="missing"/>
+                  <gmd:contactInfo>
+                     <gmd:CI_Contact>
+                        <gmd:address>
+                           <gmd:CI_Address>
+                              <gmd:electronicMailAddress>
+                                 <gco:CharacterString>http://www.ncep.noaa.gov/mail_liaison.shtml</gco:CharacterString>
+                              </gmd:electronicMailAddress>
+                           </gmd:CI_Address>
+                        </gmd:address>
+                     </gmd:CI_Contact>
+                  </gmd:contactInfo>
+                  <gmd:role>
+                     <gmd:CI_RoleCode codeList="http://www.ngdc.noaa.gov/metadata/published/xsd/schema/resources/Codelist/gmxCodelists.xml#CI_RoleCode"
+                                      codeListValue="originator">originator</gmd:CI_RoleCode>
+                  </gmd:role>
+               </gmd:CI_ResponsibleParty>
+            </gmd:citedResponsibleParty>
+         </gmd:CI_Citation>
+      </gmd:citation>
+      <gmd:abstract>
+         <gco:CharacterString>Single reference time Grib Collection</gco:CharacterString>
+      </gmd:abstract>
+      <srv:serviceType>
+         <gco:LocalName>THREDDS HTTP Service</gco:LocalName>
+      </srv:serviceType>
+      <srv:extent>
+         <gmd:EX_Extent>
+            <gmd:geographicElement>
+               <gmd:EX_GeographicBoundingBox>
+                  <gmd:extentTypeCode>
+                     <gco:Boolean>1</gco:Boolean>
+                  </gmd:extentTypeCode>
+                  <gmd:westBoundLongitude>
+                     <gco:Decimal>.0</gco:Decimal>
+                  </gmd:westBoundLongitude>
+                  <gmd:eastBoundLongitude>
+                     <gco:Decimal>359.0</gco:Decimal>
+                  </gmd:eastBoundLongitude>
+                  <gmd:southBoundLatitude>
+                     <gco:Decimal>-90.0</gco:Decimal>
+                  </gmd:southBoundLatitude>
+                  <gmd:northBoundLatitude>
+                     <gco:Decimal>90.0</gco:Decimal>
+                  </gmd:northBoundLatitude>
+               </gmd:EX_GeographicBoundingBox>
+            </gmd:geographicElement>
+            <gmd:temporalElement>
+               <gmd:EX_TemporalExtent>
+                  <gmd:extent>
+                     <gml:TimePeriod gml:id="d73007e72">
+                        <gml:beginPosition>1900-12-23T00:00:00Z</gml:beginPosition>
+                        <gml:endPosition>2100-12-23T00:00:00Z</gml:endPosition>
+                     </gml:TimePeriod>
+                  </gmd:extent>
+               </gmd:EX_TemporalExtent>
+            </gmd:temporalElement>
+         </gmd:EX_Extent>
+      </srv:extent>
+      <srv:couplingType>
+         <srv:SV_CouplingType codeList="http://www.tc211.org/ISO19139/resources/codeList.xml#SV_CouplingType"
+                              codeListValue="tight">tight</srv:SV_CouplingType>
+      </srv:couplingType>
+      <srv:containsOperations>
+         <srv:SV_OperationMetadata>
+            <srv:operationName>
+               <gco:CharacterString>FileHTTPService</gco:CharacterString>
+            </srv:operationName>
+            <srv:DCP gco:nilReason="unknown"/>
+            <srv:connectPoint>
+               <gmd:CI_OnlineResource>
+                  <gmd:linkage>
+                     <gmd:URL>$url</gmd:URL>
+                  </gmd:linkage>
+                  <gmd:protocol>
+                     <gco:CharacterString>file</gco:CharacterString>
+                  </gmd:protocol>
+                  <gmd:name>
+                     <gco:CharacterString>THREDDS_HTTP_Service</gco:CharacterString>
+                  </gmd:name>
+                  <gmd:description>
+                     <gco:CharacterString>THREDDS HTTP Service</gco:CharacterString>
+                  </gmd:description>
+                  <gmd:function>
+                     <gmd:CI_OnLineFunctionCode codeList="http://www.ngdc.noaa.gov/metadata/published/xsd/schema/resources/Codelist/gmxCodelists.xml#CI_OnLineFunctionCode"
+                                                codeListValue="download">download</gmd:CI_OnLineFunctionCode>
+                  </gmd:function>
+               </gmd:CI_OnlineResource>
+            </srv:connectPoint>
+         </srv:SV_OperationMetadata>
+      </srv:containsOperations>
+      <srv:operatesOn xlink:href="#DataIdentification"/>
+   </srv:SV_ServiceIdentification>
+</gmd:identificationInfo>

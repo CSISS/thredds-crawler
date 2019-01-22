@@ -20,7 +20,7 @@ class XMLEditor():
         return(XMLEditor(xml))
 
     def tostring(self):
-        ETree.tostring(self.etree).decode('utf-8')
+        return(ETree.tostring(self.etree).decode('utf-8'))
 
     def fromfile(file):
         with open(file, 'r') as f:

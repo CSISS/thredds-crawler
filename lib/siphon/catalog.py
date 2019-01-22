@@ -436,8 +436,8 @@ class Dataset(object):
     def set_authority_namespace_id(self):
         if self.catalog:
             try:
-                authority = self.catalog.metadata['authority'][0]
-                self.authority_ns_id = authority + ':' + self.id
+                self.authority = self.catalog.metadata['authority'][0]
+                self.authority_ns_id = self.authority + ':' + self.id
             except (IndexError, KeyError):
                 self.authority_ns_id = self.id
 

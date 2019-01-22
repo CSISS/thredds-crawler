@@ -1,4 +1,4 @@
-from .siphon.catalog import TDSCatalog, Dataset, CatalogRef
+from ..siphon.catalog import TDSCatalog, Dataset, CatalogRef
 
 from queue import Queue
 

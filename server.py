@@ -19,16 +19,16 @@ from flask_restful import Resource, Api
 import uuid
 
 
-from granules_index import GranulesIndex
+from lib.granules_index import GranulesIndex
 
 from lib.pycsw_helper import PycswHelper
-from lib.harvester import Harvester
+from lib.scraper_driver import ScraperDriver
 
-from lib.granule_scraper import GranuleScraper
-from lib.collection_scraper import CollectionScraper
-from lib.timestamp_util import timestamp_range_generator
+from lib.scraper.granule_scraper import GranuleScraper
+from lib.scraper.collection_scraper import CollectionScraper
+from lib.util.datetime import timestamp_range_generator
 
-from lib.util import mkdir_p
+from lib.util.path import mkdir_p
 
 # from logging import info, debug,error
 

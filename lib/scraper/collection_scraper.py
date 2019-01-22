@@ -1,13 +1,14 @@
 import re
 from queue import Queue
 
-from .siphon.catalog import TDSCatalog, Dataset
+from ..siphon.catalog import TDSCatalog, Dataset
 
-from .timestamp_util import timestamp_re
-from .collection_generator import CollectionGenerator
+from ..processor.collection_generator import CollectionGenerator
 from .base_scraper import BaseScraper
-from .util import slugify, http_getfile
 
+from ..util.path import slugify
+from ..util.http import http_getfile
+from ..util.datetime import timestamp_re
 
 
 class CollectionScraper(BaseScraper):

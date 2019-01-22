@@ -5,13 +5,13 @@ import datetime
 import json
 
 
-from lib.harvester import Harvester
-from lib.collection_granule_indexer import CollectionGranuleIndexer
+from .scraper_driver import ScraperDriver
+from .scraper.collection_granule_indexer import CollectionGranuleIndexer
 
-from lib.siphon.catalog import TDSCatalog, Dataset
+from .siphon.catalog import TDSCatalog, Dataset
 
-from lib.indexdb import IndexDB
-from lib.timestamp_util import timestamp_parser
+from .indexdb import IndexDB
+from .util.datetime import timestamp_parser
 
 
 
@@ -44,7 +44,7 @@ class GranulesIndex():
             return
 
         indexer = CollectionGranuleIndexer()
-        harvester = Harvester(indexer, 40, 10)
+        harvester = ScraperDriver(indexer, 40, 10)
 
         harvester.harvest(catalog_url)
         results = indexer.indexes

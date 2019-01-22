@@ -7,7 +7,7 @@ import traceback
 from .siphon.catalog import TDSCatalog, Dataset
 
 
-class Harvester():
+class ScraperDriver():
     def __init__(self, scraper, num_workers=20, queue_timeout=10):
         self.scraper = scraper
         self.num_workers = num_workers

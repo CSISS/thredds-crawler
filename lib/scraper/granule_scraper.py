@@ -1,9 +1,10 @@
-from .siphon.catalog import TDSCatalog, Dataset, CatalogRef
+from ..siphon.catalog import TDSCatalog, Dataset, CatalogRef
 
-from .util import slugify, http_getfile
-from .timestamp_util import timestamp_re
-from .base_scraper import BaseScraper
-from .xml_editor import XMLEditor
+from ..util.path import slugify
+from ..util.http import http_getfile
+from ..util.datetime import timestamp_re
+from ..scraper.base_scraper import BaseScraper
+from ..processor.xml_editor import XMLEditor
 
 
 from queue import Queue

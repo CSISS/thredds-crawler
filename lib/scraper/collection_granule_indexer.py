@@ -5,11 +5,13 @@ from queue import Queue
 
 from datetime import datetime, timedelta
 
-from .siphon.catalog import TDSCatalog, Dataset
+from ..siphon.catalog import TDSCatalog, Dataset
 
-from .base_scraper import BaseScraper
-from .timestamp_util import timestamp_re, timestamp_parser
-from .util import slugify, http_getfile
+from ..scraper.base_scraper import BaseScraper
+
+from ..util.datetime import timestamp_re, timestamp_parser
+from ..util.path import slugify
+from ..util.http import http_getfile
 
 
 class CollectionGranuleIndexer(BaseScraper):

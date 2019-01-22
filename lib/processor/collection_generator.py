@@ -6,8 +6,8 @@ from lxml import etree as ETree
 
 
 from .xml_editor import XMLEditor
-from .timestamp_util import timestamp_re, timestamp_range_generator
-from  .util import  slugify
+from ..util.datetime import timestamp_re, timestamp_range_generator
+from ..util.path import slugify
 
 
 class CollectionGenerator():

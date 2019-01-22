@@ -4,7 +4,13 @@ build:
 push:
 	docker push csiss/thredds-crawler
 
-test: build
+run:
+	python3 server.py
+
+test:
+	python3 test/test_rda_filter.py
+
+test-docker: build
 	-docker rm -f thredds-crawler-test
 	docker run --name thredds-crawler-test -p 8002:8000 --rm -d csiss/thredds-crawler
 

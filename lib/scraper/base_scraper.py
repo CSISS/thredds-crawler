@@ -18,3 +18,16 @@ class BaseScraper():
             self.process_catalog_ref(item)
         elif(type(item) == Dataset):
             self.process_dataset(item)
+
+
+    def apply_filter(self, fl, ds, file):
+        if not fl.is_required():
+            return
+
+        with open(file, 'r') as f:
+            text = f.read()
+        
+        text = fl.apply(ds, text)
+        
+        with open(file, 'w') as f:
+            f.write(text)

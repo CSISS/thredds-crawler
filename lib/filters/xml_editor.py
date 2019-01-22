@@ -15,16 +15,21 @@ class XMLEditor():
 
         self.etree = ETree.fromstring(xml, parser=parser)
 
-    def fromfile(file):
-        with open(file, 'r') as f:
-            return(XMLEditor(f.read()))
 
     def fromstring(xml):
         return(XMLEditor(xml))
 
+    def tostring(self):
+        ETree.tostring(self.etree).decode('utf-8')
+
+    def fromfile(file):
+        with open(file, 'r') as f:
+            return(XMLEditor(f.read()))
+
+
     def tofile(self, file):
         with open(file, 'w') as f:
-            f.write(ETree.tostring(self.etree).decode('utf-8'))
+            f.write(self.tostring())
 
     def safe_xpath_element(self, xpath):
         try:

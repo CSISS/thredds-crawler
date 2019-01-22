@@ -3,7 +3,7 @@ from queue import Queue
 
 from ..siphon.catalog import TDSCatalog, Dataset
 
-from ..processor.collection_generator import CollectionGenerator
+from ..filters.granule_to_collection import GranuleToCollection
 from .base_scraper import BaseScraper
 
 from ..util.path import slugify
@@ -16,7 +16,7 @@ class CollectionScraper(BaseScraper):
         super().__init__()
 
         self.tmp_dir = tmp_dir
-        self.collection_generator = CollectionGenerator(output_dir=output_dir)
+        self.collection_generator = GranuleToCollection(output_dir=output_dir)
 
     def process_catalog(self, catalog):
         print("process catalog " + catalog.catalog_url)

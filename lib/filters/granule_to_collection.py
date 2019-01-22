@@ -10,7 +10,7 @@ from ..util.datetime import timestamp_re, timestamp_range_generator
 from ..util.path import slugify
 
 
-class CollectionGenerator():
+class GranuleToCollection():
     def __init__(self, output_dir='../records/collections'):
         iso_template_path = os.path.join(os.path.dirname(__file__), "../templates/unidata-thredds-collection.xml.template")
         template_string = open(iso_template_path, "r").read()

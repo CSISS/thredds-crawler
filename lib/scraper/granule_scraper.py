@@ -4,8 +4,9 @@ from ..util.path import slugify
 from ..util.http import http_getfile
 from ..util.datetime import timestamp_re
 from ..scraper.base_scraper import BaseScraper
-from ..processor.xml_editor import XMLEditor
 
+from ..filters.xml_editor import XMLEditor
+from ..filters.granule import CommonFilter, RDAFilter
 
 from queue import Queue
 
@@ -15,7 +16,6 @@ class GranuleScraper(BaseScraper):
         super().__init__()
 
         self.download_dir = output_dir
-
 
     def process_catalog(self, catalog):
         print("process catalog " + catalog.catalog_url)
@@ -35,7 +35,9 @@ class GranuleScraper(BaseScraper):
         file = self.dataset_download_file(ds)
 
         http_getfile(ds.iso_md_url, file)
-        self.correct_metadata_file(ds, file)
+
+        self.apply_filter(CommonFilter, ds, file)
+        self.apply_filter(RDAFilter, ds, file)
 
 
 
@@ -44,13 +46,7 @@ class GranuleScraper(BaseScraper):
         file = self.download_dir + "/" + slugify(dataset.name) + ".iso.xml"
         return(file)
 
-    def correct_metadata_file(self, ds, file):
-        xml = XMLEditor.fromfile(file)
 
-        file_identifier = "<gco:CharacterString xmlns:gco=\"http://www.isotc211.org/2005/gco\">%s</gco:CharacterString>" % ds.authority_ns_id
-        xml.update_xpath_fromstring('/gmi:MI_Metadata/gmd:fileIdentifier', file_identifier)
-
-        xml.tofile(file)
 
     # def harvest_catalog_granules(self, catalog_ref):
     #     catalog = catalog_ref.follow()

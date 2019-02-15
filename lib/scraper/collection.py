@@ -4,7 +4,7 @@ from queue import Queue
 from ..siphon.catalog import TDSCatalog, Dataset
 
 from ..filters.granule_to_collection import GranuleToCollection
-from .base_scraper import BaseScraper
+from .base import BaseScraper
 
 from ..util.path import slugify
 from ..util.http import http_getfile

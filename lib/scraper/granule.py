@@ -3,7 +3,8 @@ from ..siphon.catalog import TDSCatalog, Dataset, CatalogRef
 from ..util.path import slugify
 from ..util.http import http_getfile
 from ..util.datetime import timestamp_re
-from ..scraper.base import BaseScraper
+
+from .base import BaseScraper
 
 from ..filters.xml_editor import XMLEditor
 from ..filters.granule import CommonFilter, RDAFilter

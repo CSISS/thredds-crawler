@@ -24,8 +24,8 @@ from lib.granules_index import GranulesIndex
 from lib.pycsw_helper import PycswHelper
 from lib.scraper_driver import ScraperDriver
 
-from lib.scraper.granule_scraper import GranuleScraper
-from lib.scraper.collection_scraper import CollectionScraper
+from lib.scraper.granule import GranuleScraper
+from lib.scraper.collection import CollectionScraper
 from lib.util.datetime import timestamp_range_generator
 
 from lib.util.path import mkdir_p
@@ -92,7 +92,7 @@ class HarvestResource(Resource):
             scraper = CollectionScraper(output_dir, tmp_dir)
 
         # begin harvest
-        harvester = Harvester(scraper, 40, 5)
+        harvester = ScraperDriver(scraper, 40, 5)
         harvester.harvest(catalog_url=catalog_url, dataset_name=dataset_name)
      
         # complete

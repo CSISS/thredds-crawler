@@ -7,7 +7,7 @@ from datetime import datetime, timedelta
 
 from ..siphon.catalog import TDSCatalog, Dataset
 
-from ..scraper.base_scraper import BaseScraper
+from ..scraper.base import BaseScraper
 
 from ..util.datetime import timestamp_re, timestamp_parser
 from ..util.path import slugify

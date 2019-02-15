@@ -30,8 +30,7 @@ class RDAFilter():
         http_service_id_text = rda_iso_http_template.substitute({'url': url, 'title': ds.name})
 
         http_service_id_elem = XMLEditor.fromstring(http_service_id_text).get_xpath_element('/gmd:identificationInfo')
-        print(http_service_id_elem)
-        
+       
         xml = XMLEditor.fromstring(text)
         xml.append_element_to_xpath('/gmi:MI_Metadata', http_service_id_elem)
 

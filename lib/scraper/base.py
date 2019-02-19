@@ -15,6 +15,7 @@ class BaseScraper():
         self.queue = Queue(maxsize=0)
 
     def add_queue_item(self, item):
+        print("q+ %s" % str(item))
         self.queue.put(item)
 
 

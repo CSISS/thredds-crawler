@@ -2,6 +2,10 @@
 import sqlalchemy as sql
 from datetime import datetime
 
+import threading
+
+mutex = threading.RLock()
+
 class IndexDB():
     def __init__(self, db_url, echo=False):
         self.db_url = db_url
@@ -39,66 +43,78 @@ class IndexDB():
         #     self.sqlengine.execute(tbl.delete())
 
     def create_collection(self, **kwargs):
-        with self.sql_engine.begin() as conn:
-            result = conn.execute(self.collections.insert(kwargs))
+        with mutex:
+            result = None
+            with self.sql_engine.begin() as conn:
+                result = conn.execute(self.collections.insert(kwargs))
             return result.inserted_primary_key[0]
 
-    def find_collection(self, url):
-        select = sql.select([self.collections.c.id]).where(self.collections.c.url == url)
-        with self.sql_engine.begin() as conn:
-            row = conn.execute(select).fetchone()
-            return row and row[0]
+    def find_collection(self, name=None, url=None):
+        with mutex:
+            result = None
+            if not (name == None and url == None):    
+                select = sql.select([self.collections.c.id]).where(sql.or_(self.collections.c.name == name, self.collections.c.url == url))
+                with self.sql_engine.begin() as conn:
+                    row = conn.execute(select).fetchone()
+                    result = row and row[0]
+
+            return result
+
 
     def find_granule(self, name):
-        select = sql.select([self.granules.c.id]).where(self.granules.c.name == name)
-        with self.sql_engine.begin() as conn:
-            row = conn.execute(select).fetchone()
-            return row and row[0]
+        with mutex:
+            select = sql.select([self.granules.c.id]).where(self.granules.c.name == name)
+            with self.sql_engine.begin() as conn:
+                row = conn.execute(select).fetchone()
+                return(row and row[0])
 
     def find_or_create_collection(self, name, url):
-        cid = self.find_collection(url)
-        return cid if cid else self.create_collection(name=name, url=url)
+        with mutex:
+            cid = self.find_collection(name=name, url=url)
+            return cid if cid else self.create_collection(name=name, url=url)
 
     def touch_collection(self, cid):
-        print("------------")
-        update = self.collections.update().values(updated_at=datetime.now()).where(self.collections.c.id == cid)
-        with self.sql_engine.begin() as conn:
-            conn.execute(update)
+        with mutex:
+            update = self.collections.update().values(updated_at=datetime.now()).where(self.collections.c.id == cid)
+            with self.sql_engine.begin() as conn:
+                conn.execute(update)
 
-    def get_collection_updated_at(self, url):
-        select = sql.select([self.collections.c.updated_at]).where(self.collections.c.url == url)
-        with self.sql_engine.begin() as conn:
-            row = conn.execute(select).fetchone()
-            return row and row[0]
-
+    def get_collection_updated_at(self, name=None, url=None):
+        with mutex:
+            if name == None and url == None:
+                return None
+            select = sql.select([self.collections.c.updated_at]).where(sql.or_(self.collections.c.name == name, self.collections.c.url == url))
+            with self.sql_engine.begin() as conn:
+                row = conn.execute(select).fetchone()
+                return row and row[0]
 
 
     def create_granule(self, collection_id, **kwargs):
-        kwargs['collection_id'] = collection_id
-        with self.sql_engine.begin() as conn:
-            result = conn.execute(self.granules.insert(kwargs))
+        with mutex:
+            kwargs['collection_id'] = collection_id
+            with self.sql_engine.begin() as conn:
+                result = conn.execute(self.granules.insert(kwargs))
 
 
-    def index_collection_granules(self, collection_name, collection_url, granule_dicts):
-        cid = self.find_or_create_collection(collection_name, collection_url)
-
-        for granule in granule_dicts:
+    def add_collection_granule(self, cid, granule):
+        with mutex:
             g = self.find_granule(granule['name'])
             if g == None:
                 self.create_granule(cid, **granule)
 
-        self.touch_collection(cid)
+            self.touch_collection(cid)
 
 
     def get_collection_granules(self, collection_url, time_start, time_end):
-        cid = self.find_collection(collection_url)
-        if cid == None:
-            return([])
+        with mutex:
+            cid = self.find_collection(url=collection_url)
+            if cid == None:
+                return([])
 
-        gs = self.granules
-        select = sql.select([gs]).where(sql.and_(gs.c.time_start >= time_start, gs.c.time_end <= time_end, gs.c.collection_id == cid))
-        with self.sql_engine.begin() as conn:
-            results = conn.execute(select)
-            return [dict(r) for r in results] 
+            gs = self.granules
+            select = sql.select([gs]).where(sql.and_(gs.c.time_start >= time_start, gs.c.time_end <= time_end, gs.c.collection_id == cid))
+            with self.sql_engine.begin() as conn:
+                results = conn.execute(select)
+                return [dict(r) for r in results] 
 
 

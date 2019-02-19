@@ -20,28 +20,18 @@ class GranuleToCollection():
         # print("Using template '%s' to generate ISO metadata" % iso_template_path)
 
 
-    def generate_template_keywords(self, collection_catalog, dataset, url, xml_doc):
-        file_ext_re = r'_\.\w{1,5}$'
-        file_timestamp_re = timestamp_re.yesterday + r'/'
-
-        title = re.sub(timestamp_re.date_time, '', dataset.name)
-        title = re.sub(file_ext_re, '', title) # '_.grib2' -> ''
-        title = re.sub(file_timestamp_re, '', title) # '20181023/Level3_YUX_PTA_20181023_2358' -> 'Level3_YUX_PTA_20181023_2358'
-
-        
-        file_identifier = re.sub(timestamp_re.date_time, '', dataset.authority_ns_id)
-        file_identifier = re.sub(file_ext_re, '', file_identifier) # '_.grib2' -> ''
-        file_identifier = re.sub(file_timestamp_re, '', file_identifier) # '20181023/Level3_YUX_PTA_20181023_2358' -> 'Level3_YUX_PTA_20181023_2358'
-
+    def generate_template_keywords(self, ds, xml_doc):
+        file_identifier = ds.collection_name
+        title = file_identifier.split('/')[-1]
 
         keywords = {}
-        keywords["title"] = title
         keywords["file_identifier"] = file_identifier
+        keywords["title"] = title
         keywords["responsible_party"] = xml_doc.get_xpath_text('/gmi:MI_Metadata/gmd:contact/gmd:CI_ResponsibleParty/gmd:individualName/gco:CharacterString')
         keywords["contact_email"] = xml_doc.get_xpath_text('/gmi:MI_Metadata/gmd:contact/gmd:CI_ResponsibleParty/gmd:contactInfo/gmd:CI_Contact/gmd:address/gmd:CI_Address/gmd:electronicMailAddress/gco:CharacterString')
         keywords["date"] = xml_doc.get_xpath_text('/gmi:MI_Metadata/gmd:dateStamp/gco:Date')
-        keywords["live_catalog_url"] = collection_catalog.catalog_url
-        keywords["source_granule_url"] = url.replace('&', '&amp;')
+        keywords["live_catalog_url"] = ds.collection_catalog_url
+        keywords["source_granule_url"] = ds.iso_md_url.replace('&', '&amp;')
         return(keywords)
 
 
@@ -72,7 +62,7 @@ class GranuleToCollection():
             collection_xml.append_element_to_xpath(dest_xpath, e)
 
 
-    def set_collection_temporal_extent(self, collection, xml_doc):
+    def set_collection_temporal_extent(self, xml_doc):
         # TODO: extract timestamp from collection siphon object
         # HACK: assume 14 days duration
         ts_range = timestamp_range_generator(14)
@@ -92,19 +82,19 @@ class GranuleToCollection():
                   #          <gml:endPosition>2018-09-28T12:00:00Z</gml:endPosition>
                   #       </gml:TimePeriod>
 
-    def generate_collection_iso_for_dataset(self, collection_catalog, dataset, url, ds_file):
+    def generate_collection_iso_for_dataset(self, dataset, ds_file):
         dataset_xml_doc = XMLEditor.fromfile(ds_file)
 
-        template_keywords = self.generate_template_keywords(collection_catalog, dataset, url, dataset_xml_doc)
+        template_keywords = self.generate_template_keywords(dataset, dataset_xml_doc)
 
         collection_xml_text = self.template.substitute(template_keywords)
         collection_xml_doc = XMLEditor.fromstring(collection_xml_text)
 
         self.copy_elements_to_collection_xml(collection_xml_doc, dataset_xml_doc)
 
-        self.set_collection_temporal_extent(collection_catalog, collection_xml_doc)
+        self.set_collection_temporal_extent(collection_xml_doc)
 
         collection_file = self.output_dir + '/' + slugify(template_keywords['title']) + '.xml'
 
         collection_xml_doc.tofile(collection_file)
-        print("generated %s" % collection_file)
+        print("[GENERATED]     %s" % collection_file)

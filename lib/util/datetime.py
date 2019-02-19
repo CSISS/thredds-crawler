@@ -1,13 +1,33 @@
 import datetime
 import re
 
+
+# FROM: {'start': '2018-09-11T06:00:00Z', 'end': None, 'duration': 5 minutes}
+# TO: (2018-09-11T06:00:00Z, 2018-09-11T06:05:00Z)
+def time_coverage_to_time_span(start, end, duration):
+    if start != None:
+        start = timestamp_parser.parse_datetime(start)
+    else:
+        start = datetime.now()
+
+    if duration != None:
+        end = start + timestamp_parser.parse_duration(duration)
+    elif end != None:
+        end = timestamp_parser.parse_datetime(end)
+    else:
+        end = start
+
+    result = (start, end)
+    return result
+
+
 yesterday_date = datetime.date.today() - datetime.timedelta(days=1)
 
 class timestamp_re:
     yesterday = r"%d%02d%02d" % (yesterday_date.year, yesterday_date.month, yesterday_date.day)
-    date = r"(19|20)\d\d[01]\d[0123]\d"
+    date = r"(19|20)\d\d[01]\d([0123]\d)?"
     time = r"(0[0-9]|1[0-9]|2[0-3])[0-5][0-9]"
-    date_time = date + r"_" + time
+    date_time = date + r"[_\.T]" + time
 
     def fullmatch_yesterday(str):
         return re.fullmatch(timestamp_re.yesterday, str)

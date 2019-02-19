@@ -19,12 +19,12 @@ from flask_restful import Resource, Api
 import uuid
 
 
-from lib.granules_index import GranulesIndex
+from lib.index import Index
 
 from lib.pycsw_helper import PycswHelper
 from lib.scraper_driver import ScraperDriver
 
-from lib.scraper.granule import GranuleScraper
+from lib.scraper.simple import SimpleScraper
 from lib.scraper.collection import CollectionScraper
 from lib.util.datetime import timestamp_range_generator
 
@@ -45,16 +45,30 @@ class PurgeExpiredResource(Resource):
         return("purged expired (older than 14 days) records")
 
 
-class GranulesIndexResource(Resource):
+class IndexResource(Resource):
     def post(self):
         # get params
-        collection_name = request.form['collection_name']
-        catalog_url = request.form['catalog_url']
+        collection_name = request.form.get('collection_name')
+        catalog_url = request.form.get('catalog_url')
+        job_id = str(uuid.uuid4())[:8] # short id for uniqueness
 
-        result = granules_index.update_index(collection_name, catalog_url)
+        output_dir = RECORDS_DIR + '/index.' + job_id
 
-        print(result, flush=True)
-        return result
+        scraper = CollectionScraper(output_dir)
+        
+        driver = ScraperDriver(scraper, 20, 1)
+        driver.harvest(catalog_url=catalog_url)
+     
+        # complete
+        print("indexing harvest complete", flush=True)
+        print("importing %s" % output_dir, flush=True)
+        print("")
+
+
+        # result = granules_index.update_index(collection_name, catalog_url)
+
+        # print(result, flush=True)
+        return output_dir
 
     def get(self):
         catalog_url = request.args['catalog_url']
@@ -80,19 +94,19 @@ class HarvestResource(Resource):
 
         if harvest_type == 'granules':
             output_dir = RECORDS_DIR + '/granules.' + job_id
-            mkdir_p(output_dir)
+            # mkdir_p(output_dir)
 
             scraper = GranuleScraper(output_dir)
-        else:
-            output_dir = RECORDS_DIR + '/collections.' + job_id
-            tmp_dir = output_dir + '.tmp'
-            mkdir_p(output_dir)
-            mkdir_p(tmp_dir)
+        # else:
+        #     output_dir = RECORDS_DIR + '/collections.' + job_id
+        #     tmp_dir = output_dir + '.tmp'
+        #     mkdir_p(output_dir)
+        #     mkdir_p(tmp_dir)
 
             scraper = CollectionScraper(output_dir, tmp_dir)
 
         # begin harvest
-        harvester = ScraperDriver(scraper, 40, 5)
+        harvester = ScraperDriver(scraper, 1, 1)
         harvester.harvest(catalog_url=catalog_url, dataset_name=dataset_name)
      
         # complete
@@ -115,15 +129,15 @@ else:
     RECORDS_DIR = '/records'
 
 
-granules_index = GranulesIndex(RECORDS_DIR)
+# granules_index = GranulesIndex(RECORDS_DIR)
 
 application = Flask(__name__)
 api = Api(application)
 
 
 
-api.add_resource(GranulesIndexResource, '/granules_index')
-api.add_resource(HarvestResource, '/harvest/<string:harvest_type>')
+api.add_resource(IndexResource, '/index')
+api.add_resource(HarvestResource, '/harvest')
 api.add_resource(PurgeExpiredResource, '/purge_expired')
 
 # harvest.delete_lock('granules')

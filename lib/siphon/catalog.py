@@ -158,7 +158,7 @@ class TDSCatalog(object):
 
     """
 
-    def __init__(self, catalog_url, ref_name = 'Unknown'):
+    def __init__(self, catalog_url, ref_name = 'Unknown', parent_catalog = None):
         """
         Initialize the TDSCatalog object.
 
@@ -199,6 +199,8 @@ class TDSCatalog(object):
         self.catalog_refs = DatasetCollection()
         self.metadata = {}
         self.ds_with_access_elements_to_process = []
+        self.parent_catalog = parent_catalog
+
         service_skip_count = 0
         service_skip = 0
         current_dataset = None
@@ -244,7 +246,7 @@ class TDSCatalog(object):
 
     def __str__(self):
         """Return a string representation of the catalog name."""
-        return str(self.catalog_name)
+        return str("Cat " + self.catalog_url)
 
     def _process_dataset(self, element):
         catalog_url = ''
@@ -257,7 +259,7 @@ class TDSCatalog(object):
         self.datasets[ds.name] = ds
 
     def _process_catalog_ref(self, element):
-        catalog_ref = CatalogRef(self.catalog_url, element)
+        catalog_ref = CatalogRef(self.catalog_url, element, self)
         self.catalog_refs[catalog_ref.title] = catalog_ref
 
     def _process_metadata(self, element, tag_type):
@@ -330,7 +332,7 @@ class CatalogRef(object):
 
     """
 
-    def __init__(self, base_url, element_node):
+    def __init__(self, base_url, element_node, parent_catalog = None):
         """
         Initialize the catalogRef object.
 
@@ -344,7 +346,7 @@ class CatalogRef(object):
         """
         self.title = element_node.attrib['{http://www.w3.org/1999/xlink}title']
         self.name = element_node.attrib.get('name', self.title)
-        self.catalog = None
+        self.parent_catalog = parent_catalog
 
         # Resolve relative URLs
         href = element_node.attrib['{http://www.w3.org/1999/xlink}href']
@@ -352,7 +354,7 @@ class CatalogRef(object):
 
     def __str__(self):
         """Return a string representation of the catalog reference."""
-        return str(self.title)
+        return str("CRef " + self.title)
 
     def follow(self):
         """Follow the catalog reference and return a new :class:`TDSCatalog`.
@@ -363,7 +365,7 @@ class CatalogRef(object):
             The referenced catalog
 
         """
-        return TDSCatalog(self.href, str(self))
+        return TDSCatalog(self.href, str(self), self.parent_catalog)
 
     __repr__ = __str__
 
@@ -408,8 +410,16 @@ class Dataset(object):
         else:
             self.url_path = None
 
+        # catalog is the THREDDs folder
         self.catalog_name = ''
         self.catalog = catalog
+
+        # collection is the logical series to which this dataset belongs
+        # some collections are spread across multiple catalogs
+        # in those cases, the collection_catalog_url should refer to the parent
+        # catalog that contains all the subcatalogs and all the datasets
+        self.collection_name = None
+        self.collection_catalog_url = None
 
         self.iso_md_url = 'unknown'
 
@@ -431,7 +441,7 @@ class Dataset(object):
 
     def __str__(self):
         """Return a string representation of the dataset."""
-        return str(self.name)
+        return str("DS " + self.name)
 
     def set_authority_namespace_id(self):
         if self.catalog:

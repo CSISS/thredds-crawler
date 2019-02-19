@@ -45,9 +45,10 @@ class ScraperDriver():
 
         if dataset_name:
             print("selected dataset " + dataset_name)
-            self.scraper.queue.put(catalog.datasets[dataset_name])
+            self.scraper.add_queue_item(catalog.datasets[dataset_name])
         else:
-            self.scraper.queue.put(catalog)
+            self.scraper.add_queue_item(catalog)
+
 
 
         self.threads = []

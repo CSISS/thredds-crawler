@@ -59,6 +59,9 @@ class Index():
     def create_collection_for_granule(self, ds):
         self.db.create_collection(name=ds.collection_name, url=ds.collection_catalog_url)
 
+    def clear_collection(self, collection_name):
+        self.db.delete_collection_granules(collection_name)
+
     def add_granule(self, ds):
         access_url = ds.access_urls.get('HTTPServer') or ds.access_urls.get('OPENDAP')
 

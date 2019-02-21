@@ -47,7 +47,9 @@ class IndexDB():
             result = None
             with self.sql_engine.begin() as conn:
                 result = conn.execute(self.collections.insert(kwargs))
-            return result.inserted_primary_key[0]
+            cid = result.inserted_primary_key[0]
+            self.touch_collection(cid)
+            return cid
 
     def find_collection(self, name=None, url=None):
         with mutex:
@@ -79,6 +81,13 @@ class IndexDB():
             update = self.collections.update().values(updated_at=now).where(self.collections.c.id == cid)
             with self.sql_engine.begin() as conn:
                 conn.execute(update)
+
+    def delete_collection_granules(self, collection_name):
+        with mutex:
+            cid = self.find_collection(name=collection_name)
+            delete = self.granules.delete().where(self.granules.c.collection_id == cid)
+            with self.sql_engine.begin() as conn:
+                conn.execute(delete)
 
     def get_collection_updated_at(self, name=None, url=None):
         with mutex:

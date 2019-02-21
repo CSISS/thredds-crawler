@@ -1,9 +1,9 @@
 import re
 from .dtutil import timestamp_re
 
-u = r"[\._/]"
-b = r"\b"
-series_member_re = re.compile(u + timestamp_re.date_time + b + '|' + u + timestamp_re.date + b)
+u = r"[\._/-]"
+nd = r"(?!\d)"
+series_member_re = re.compile(u + timestamp_re.date_time + nd + '|' + u + timestamp_re.date + nd)
 
 # Level3_Composite_ntp_4km_20190218_1735.gini           -> Level3_Composite_ntp_4km.gini
 # NDFD_NWS_CONUS_2p5km_20190119_0000.grib2              -> NDFD_NWS_CONUS_2p5km.grib2
@@ -25,6 +25,9 @@ def dataset_collection_catalog_url(ds):
     return ds.catalog.catalog_url
 
 def dataset_process_collection_name(ds):
+
     ds.collection_name = dataset_collection_name(ds)
+
+    # print("*** %s ---> %s" % (ds.authority_ns_id, ds.collection_name ))
     if ds.collection_name:
         ds.collection_catalog_url = dataset_collection_catalog_url(ds)

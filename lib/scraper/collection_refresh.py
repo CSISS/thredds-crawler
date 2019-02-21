@@ -28,6 +28,13 @@ class CollectionRefreshScraper(BaseScraper):
         super().__init__()
 
         self.index = index
+        self.collection_datasets = []
+
+    def sync_index(self):
+        print("insert %d granules" % len(self.collection_datasets))
+        for ds in self.collection_datasets:
+            self.index.add_granule(ds)
+
 
     def set_refresh_scope(self, collection_name, start_time, end_time):
         catalog_url = self.index.get_catalog_url(collection_name)
@@ -47,7 +54,7 @@ class CollectionRefreshScraper(BaseScraper):
             return False
 
         last_index_time = self.index.last_updated_at(collection_name)
-        margin = datetime.timedelta(minutes = 30)
+        margin = datetime.timedelta(minutes = 20)
         # margin = datetime.timedelta(minutes = 0)
         
         print(last_index_time)
@@ -59,6 +66,20 @@ class CollectionRefreshScraper(BaseScraper):
 
         return True
         
+    def catalog_ref_is_fresh(self, catalog_ref):
+        title = catalog_ref.title
+        
+        if timestamp_re.fullmatch_date(title) or timestamp_re.search_date_time(title):
+            # the ref contains a timestamp
+            if timestamp_re.search_today(title):
+                # has a timestamp of today. FRESH
+                return True
+            else:
+                # has a timestamp of a previous day. NOT FRESH
+                return False
+
+        # if no timestamp, then FRESH
+        return True
 
 
     def process_catalog(self, catalog):
@@ -66,15 +87,18 @@ class CollectionRefreshScraper(BaseScraper):
 
         for ds_name, ds in catalog.datasets.items():
             dataset_process_collection_name(ds)
-            self.index.add_granule(ds)
+            self.collection_datasets.append(ds)
  
         for ref_name, ref in catalog.catalog_refs.items():
             self.add_queue_item(ref)
 
     def process_catalog_ref(self, catalog_ref):
-        # print("{p CRef} " + catalog_ref.href)
-        catalog = catalog_ref.follow()
-        self.add_queue_item(catalog)
+        if self.catalog_ref_is_fresh(catalog_ref):
+            print("{p CRef} " + catalog_ref.title)
+            catalog = catalog_ref.follow()
+            self.add_queue_item(catalog)
+        else:
+            print("{skip CRef} "+ catalog_ref.title)
 
     def process_dataset(self, ds):
         return

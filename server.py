@@ -64,6 +64,8 @@ class IndexResource(Resource):
         
         driver = ScraperDriver(scraper, 20, 1)
         driver.harvest()
+
+        scraper.sync_index()
      
         # complete
         print("indexing harvest complete", flush=True)
@@ -87,8 +89,11 @@ class IndexResource(Resource):
         # refresh if needed (might be time consuming)
         scraper = CollectionRefreshScraper(index)
         scraper.set_refresh_scope(collection_name, start_time, end_time)
-        driver = ScraperDriver(scraper, 20, 1)
+        
+        driver = ScraperDriver(scraper, 4, 0.5)
         driver.harvest()
+
+        scraper.sync_index()
 
         # retrieve from index DB
         result = index.get_granules(collection_name, start_time, end_time)

@@ -1,4 +1,5 @@
 import re
+import itertools
 from queue import Queue
 
 from ..siphon.catalog import TDSCatalog, Dataset
@@ -31,6 +32,24 @@ class CollectionImportScraper(SimpleScraper):
         self.collection_generator = GranuleToCollection(output_dir=output_dir)
         self.index = index
 
+        self.collection_datasets = []
+
+    def sync_index(self):
+        # group by collection name
+        collections = {}
+        for ds in self.collection_datasets:
+            collections.setdefault(ds.collection_name, []).append(ds)
+        
+        # reset the index for each collection
+        for collection_name, datasets in collections.items():
+            print("clear granules for %s" % collection_name)
+            self.index.clear_collection(collection_name)
+            print("insert %d granules" % len(datasets))
+            for ds in datasets:
+                self.index.add_granule(ds)
+                # print(ds.name)
+
+
 
     def process_catalog(self, catalog):
         print("{p Cat} " + catalog.catalog_url)
@@ -47,17 +66,19 @@ class CollectionImportScraper(SimpleScraper):
  
         for ref_name, ref in catalog.catalog_refs.items():
             self.add_queue_item(ref)
+        
         print("{DONE Cat}" + catalog.catalog_url)
    
 
     def process_collection_dataset(self, ds):
         if not self.index.has_collection_for_granule(ds):
+            print("add collection " + ds.collection_name)
             self.index.create_collection_for_granule(ds)
 
             self.create_collection_csw_record(ds)
 
-        self.index.add_granule(ds)
-
+        # collect all granules we see
+        self.collection_datasets.append(ds)
 
     def create_collection_csw_record(self, ds):
         file = self.download_dataset(ds, directory=self.tmp_dir)

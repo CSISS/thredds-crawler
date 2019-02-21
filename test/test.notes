@@ -1,0 +1,60 @@
+#### CREATE INDEX
+
+# index invariant (should collect granules not collections)
+curl http://localhost:8002/index -X POST -d "catalog_url=https://rda.ucar.edu/thredds/catalog/files/g/ds631.1/invariant/catalog.xml"
+
+
+# radar composite ntp single day
+curl http://localhost:8002/index -X POST -d "catalog_url=http://thredds.ucar.edu/thredds/catalog/nexrad/composite/gini/ntp/4km/20190218/catalog.xml"
+# expected: 1 collection with many many granules
+
+
+# radar composite ntp all days 
+curl http://localhost:8002/index -X POST -d "catalog_url=http://thredds.ucar.edu/thredds/catalog/nexrad/composite/gini/ntp/catalog.xml"
+# expected: 1 collection with many many granules
+
+
+# all radar composite
+curl http://localhost:8002/index -X POST -d "catalog_url=http://thredds.ucar.edu/thredds/catalog/nexrad/composite/gini/catalog.xml"
+
+# GEFS collection
+curl http://localhost:8002/index -X POST -d "catalog_url=http://thredds.ucar.edu/thredds/catalog/grib/NCEP/GEFS/Global_1p0deg_Ensemble/members-analysis/catalog.xml"
+
+# GEOS-16 Mesoscale-2 Channel 16
+curl http://localhost:8002/index -X POST -d "catalog_url=http://thredds.ucar.edu/thredds/catalog/satellite/goes16/GOES16/Mesoscale-2/Channel16/catalog.xml"
+
+
+#### READ INDEX
+
+# GEFS granules by collection_name
+curl "http://localhost:8002/index?collection_name=edu.ucar.unidata:grib/NCEP/GEFS/Global_1p0deg_Ensemble/members-analysis/GEFS_Global_1p0deg_Ensemble_ana.grib2"
+
+# asr15km.anl.2D.mon.nc granules
+curl "http://localhost:8002/index?collection_name=edu.ucar.rda:files/g/ds631.1/asr15.anl.monthly/asr15km.anl.2D.mon.nc"
+
+# GEFS granules with start and end times
+curl "http://localhost:8002/index?catalog_url=collection_name=edu.ucar.rda:files/g/ds631.1/asr15.anl.monthly/asr15km.anl.2D.mon.nc&start_time=2019-01-30T01:01:01&end_time=2019-02-01T23:59:59"
+
+
+# radar composite ntp 
+curl "http://localhost:8002/index?collection_name=Unidata/NEXRAD/NationalComposite/GINI/ntp/4km/Level3_Composite_ntp_4km.gini"
+
+# radar composite ntp with time_end
+curl "http://localhost:8002/index?collection_name=Unidata/NEXRAD/NationalComposite/GINI/ntp/4km/Level3_Composite_ntp_4km.gini&end_time=2019-02-10T23:59:59"
+
+# GOES16_Mesoscale-2_13.30_2km_43.3N_91.7W.nc4
+curl "http://localhost:8002/index?collection_name=edu.ucar.unidata:noaaport-goes16/Mesoscale-2/Channel16/current/GOES16_Mesoscale-2_13.30_2km_34.0N_82.0W.nc4"
+
+
+#### REINDEX while reading index
+
+# no reindex for RDA
+# no reindex if query time_end is before last reindex + 10 minutes
+# don't reindex sub-catalogs that have date timestamp in it older than day of last reindex
+
+
+
+#### how to expire index?
+#### best solution is to do a full reindex
+
+

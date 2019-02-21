@@ -38,14 +38,14 @@ from lib.util.path import mkdir_p
 import logging
 
 
-class PurgeExpiredResource(Resource):
-    def post(self): 
-        expired_date = timestamp_range_generator(14).start
-        # expired_date = datetime.datetime.today() - datetime.timedelta(minutes=1)
+# class PurgeExpiredResource(Resource):
+#     def post(self): 
+#         expired_date = timestamp_range_generator(14).start
+#         # expired_date = datetime.datetime.today() - datetime.timedelta(minutes=1)
     
 
-        PycswHelper().delete_records({'where': 'TO_TIMESTAMP(records.insert_date, \'YYYY-MM-DDTHH:MI:SS\') <  TIMESTAMP \'' + str(expired_date) + '\'', 'values': []})
-        return("purged expired (older than 14 days) records")
+#         PycswHelper().delete_records({'where': 'TO_TIMESTAMP(records.insert_date, \'YYYY-MM-DDTHH:MI:SS\') <  TIMESTAMP \'' + str(expired_date) + '\'', 'values': []})
+#         return("purged expired (older than 14 days) records")
 
 
 class IndexResource(Resource):
@@ -148,7 +148,6 @@ api = Api(application)
 
 api.add_resource(IndexResource, '/index')
 api.add_resource(HarvestResource, '/harvest')
-api.add_resource(PurgeExpiredResource, '/purge_expired')
 
 # harvest.delete_lock('granules')
 # harvest.delete_lock('collections')

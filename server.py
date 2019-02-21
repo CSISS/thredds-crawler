@@ -70,8 +70,7 @@ class IndexResource(Resource):
         print("importing %s" % output_dir, flush=True)
         print("")
 
-        # PycswHelper().load_records(output_dir)
-
+        PycswHelper().load_records(output_dir)
 
         return output_dir
 

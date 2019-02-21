@@ -78,6 +78,6 @@ class Index():
             g['time_start'] = timestamp_parser.to_str(g['time_start'])
             g['time_end'] = timestamp_parser.to_str(g['time_end'])
 
-        return(json.dumps(granules))
+        return(granules)
 
 

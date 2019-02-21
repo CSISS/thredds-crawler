@@ -1,3 +1,9 @@
+### HARVEST
+
+# single dataset
+curl http://localhost:8002/harvest -X POST -d "catalog_url=http://thredds.ucar.edu/thredds/catalog/nexrad/level3/PTA/YUX/20190221/catalog.xml&dataset_name=Level3_YUX_PTA_20190221_1923.nids"
+
+
 #### CREATE INDEX
 
 # index invariant (should collect granules not collections)

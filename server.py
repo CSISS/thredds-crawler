@@ -103,14 +103,14 @@ class IndexResource(Resource):
 
 
 class HarvestResource(Resource):
-    def post(self, harvest_type):
+    def post(self):
         job_id = str(uuid.uuid4())[:8] # short id for uniqueness
         
         catalog_url = request.form['catalog_url']
         dataset_name = request.form.get('dataset_name', None)
 
         output_dir = RECORDS_DIR + '/result.' + job_id
-        scraper = GranuleScraper(output_dir)
+        scraper = SimpleScraper(output_dir)
         scraper.add_catalog(catalog_url=catalog_url, dataset_name=dataset_name)
 
         # begin harvest

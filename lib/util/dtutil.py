@@ -1,6 +1,6 @@
 import datetime
-import re
 
+import re
 
 # FROM: {'start': '2018-09-11T06:00:00Z', 'end': None, 'duration': 5 minutes}
 # TO: (2018-09-11T06:00:00Z, 2018-09-11T06:05:00Z)
@@ -8,7 +8,7 @@ def time_coverage_to_time_span(start, end, duration):
     if start != None:
         start = timestamp_parser.parse_datetime(start)
     else:
-        start = datetime.now()
+        start = datetime.datetime.now()
 
     if duration != None:
         end = start + timestamp_parser.parse_duration(duration)
@@ -42,29 +42,46 @@ class timestamp_re:
 class timestamp_parser:
     strpformat = '%Y-%m-%dT%H:%M:%S'
     duration_re = re.compile(r'((?P<hours>\d+?)\shours?)?((?P<minutes>\d+?)\sminutes?)?((?P<seconds>\d+?)\sseconds?)?')
+    min_datetime = datetime.datetime(1,1,1,1,1,1)
+    max_datetime = datetime.datetime(3001,1,1,1,1,1)
 
-    def parse_datetime(string):
-        string = string[0:19] # drop timezone info
+    def parse_datetime(string, default=None):
+        try:
+            string = string[0:19] # drop timezone info
+            result = datetime.datetime.strptime(string, timestamp_parser.strpformat)
 
-        return datetime.datetime.strptime(string, timestamp_parser.strpformat) 
+            return(result or default)
+        except:
+            return default
+
+    def parse_duration(string, default=None):
+        try:
+            parts = timestamp_parser.duration_re.match(string)
+
+            if not parts:
+                return default
+
+            parts = parts.groupdict()
+            time_params = {}
+            for (name, param) in parts.items():
+                if param:
+                    time_params[name] = int(param)
+            
+            result = datetime.timedelta(**time_params)
+            return(result or default)
+
+        except:
+            return default
+
+    def to_str(datetime, default=None):
+        try:
+            result = datetime.strftime("%Y-%m-%dT%H:%M:%S")
+            return(result or default)
+        except:
+            return default
 
 
-    def parse_duration(string):
-        parts = timestamp_parser.duration_re.match(string)
 
-        if not parts:
-            return
-
-        parts = parts.groupdict()
-        time_params = {}
-        for (name, param) in parts.items():
-            if param:
-                time_params[name] = int(param)
-        
-        return datetime.timedelta(**time_params)
-
-    def to_str(datetime):
-        return datetime.strftime("%Y-%m-%dT%H:%M:%S")
 
 
 class timestamp_range_generator():

@@ -25,8 +25,11 @@ from lib.pycsw_helper import PycswHelper
 from lib.scraper_driver import ScraperDriver
 
 from lib.scraper.simple import SimpleScraper
-from lib.scraper.collection import CollectionScraper
-from lib.util.datetime import timestamp_range_generator
+
+from lib.scraper.collection_import import CollectionImportScraper
+from lib.scraper.collection_refresh import CollectionRefreshScraper
+
+from lib.util.dtutil import timestamp_range_generator, timestamp_parser
 
 from lib.util.path import mkdir_p
 
@@ -48,40 +51,50 @@ class PurgeExpiredResource(Resource):
 class IndexResource(Resource):
     def post(self):
         # get params
-        collection_name = request.form.get('collection_name')
+        # collection_name = request.form.get('collection_name')
         catalog_url = request.form.get('catalog_url')
         job_id = str(uuid.uuid4())[:8] # short id for uniqueness
 
-        output_dir = RECORDS_DIR + '/index.' + job_id
+        index = Index(INDEX_FILE)
 
-        scraper = CollectionScraper(output_dir)
+        output_dir = RECORDS_DIR + '/result.' + job_id
+
+        scraper = CollectionImportScraper(output_dir, index)
+        scraper.add_catalog(catalog_url=catalog_url)
         
         driver = ScraperDriver(scraper, 20, 1)
-        driver.harvest(catalog_url=catalog_url)
+        driver.harvest()
      
         # complete
         print("indexing harvest complete", flush=True)
         print("importing %s" % output_dir, flush=True)
         print("")
 
+        # PycswHelper().load_records(output_dir)
 
-        # result = granules_index.update_index(collection_name, catalog_url)
 
-        # print(result, flush=True)
         return output_dir
 
     def get(self):
-        catalog_url = request.args['catalog_url']
-        start_time = request.args['start_time']
-        end_time = request.args['end_time']
+        index = Index(INDEX_FILE)
 
-        print(catalog_url)
-        print(start_time)
-        print(end_time)
-        result = granules_index.get_index(catalog_url, start_time, end_time)
+        collection_name = request.args.get('collection_name')
+        start_time = request.args.get('start_time')
+        end_time = request.args.get('end_time')
 
-        # result = ""
-        print("got index for %s" % catalog_url, flush=True)
+        start_time = timestamp_parser.parse_datetime(start_time, default=timestamp_parser.min_datetime)
+        end_time = timestamp_parser.parse_datetime(end_time, default=timestamp_parser.max_datetime)
+
+        # refresh if needed (might be time consuming)
+        scraper = CollectionRefreshScraper(index)
+        scraper.set_refresh_scope(collection_name, start_time, end_time)
+        driver = ScraperDriver(scraper, 20, 1)
+        driver.harvest()
+
+        # retrieve from index DB
+        result = index.get_granules(collection_name, start_time, end_time)
+
+        print("read index for %s" % collection_name, flush=True)
         return result
 
 
@@ -92,22 +105,13 @@ class HarvestResource(Resource):
         catalog_url = request.form['catalog_url']
         dataset_name = request.form.get('dataset_name', None)
 
-        if harvest_type == 'granules':
-            output_dir = RECORDS_DIR + '/granules.' + job_id
-            # mkdir_p(output_dir)
-
-            scraper = GranuleScraper(output_dir)
-        # else:
-        #     output_dir = RECORDS_DIR + '/collections.' + job_id
-        #     tmp_dir = output_dir + '.tmp'
-        #     mkdir_p(output_dir)
-        #     mkdir_p(tmp_dir)
-
-            scraper = CollectionScraper(output_dir, tmp_dir)
+        output_dir = RECORDS_DIR + '/result.' + job_id
+        scraper = GranuleScraper(output_dir)
+        scraper.add_catalog(catalog_url=catalog_url, dataset_name=dataset_name)
 
         # begin harvest
-        harvester = ScraperDriver(scraper, 1, 1)
-        harvester.harvest(catalog_url=catalog_url, dataset_name=dataset_name)
+        harvester = ScraperDriver(scraper, 20, 1)
+        harvester.harvest()
      
         # complete
         print("harvest complete", flush=True)
@@ -127,6 +131,8 @@ if __name__ == '__main__':
     RECORDS_DIR = '../records'
 else:
     RECORDS_DIR = '/records'
+
+INDEX_FILE = RECORDS_DIR + '/index.sqlite.db'
 
 
 # granules_index = GranulesIndex(RECORDS_DIR)

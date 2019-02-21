@@ -1,5 +1,5 @@
 import re
-from .datetime import timestamp_re
+from .dtutil import timestamp_re
 
 u = r"[\._/]"
 b = r"\b"

@@ -15,9 +15,17 @@ class BaseScraper():
         self.queue = Queue(maxsize=0)
 
     def add_queue_item(self, item):
-        print("q+ %s" % str(item))
+        # print("q+ %s" % str(item))
         self.queue.put(item)
 
+    def add_catalog(self, catalog_url, dataset_name=None):
+        catalog = TDSCatalog(catalog_url)
+
+        if dataset_name:
+            print("selected dataset " + dataset_name)
+            self.add_queue_item(catalog.datasets[dataset_name])
+        else:
+            self.add_queue_item(catalog)
 
     def process_queued_item(self, item):
         if(type(item) == TDSCatalog):

@@ -37,19 +37,9 @@ class ScraperDriver():
                 print("%s timed out" % thread_name)
                 return
 
-    def harvest(self, catalog_url, dataset_name=None):
+    def harvest(self):
         # Ctrl+\
         # signal.signal(signal.SIGQUIT, self.dump_thread_stacks)
-
-        catalog = TDSCatalog(catalog_url)
-
-        if dataset_name:
-            print("selected dataset " + dataset_name)
-            self.scraper.add_queue_item(catalog.datasets[dataset_name])
-        else:
-            self.scraper.add_queue_item(catalog)
-
-
 
         self.threads = []
         print("Starting %d threads" % self.num_workers)

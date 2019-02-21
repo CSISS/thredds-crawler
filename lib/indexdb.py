@@ -1,6 +1,6 @@
 # import records
 import sqlalchemy as sql
-from datetime import datetime
+import datetime
 
 import threading
 
@@ -74,8 +74,9 @@ class IndexDB():
             return cid if cid else self.create_collection(name=name, url=url)
 
     def touch_collection(self, cid):
+        now = datetime.datetime.now()
         with mutex:
-            update = self.collections.update().values(updated_at=datetime.now()).where(self.collections.c.id == cid)
+            update = self.collections.update().values(updated_at=now).where(self.collections.c.id == cid)
             with self.sql_engine.begin() as conn:
                 conn.execute(update)
 
@@ -87,6 +88,16 @@ class IndexDB():
             with self.sql_engine.begin() as conn:
                 row = conn.execute(select).fetchone()
                 return row and row[0]
+
+    def get_collection_catalog_url(self, name=None):
+        with mutex:
+            if name == None:
+                return None
+            select = sql.select([self.collections.c.url]).where(self.collections.c.name == name)
+            with self.sql_engine.begin() as conn:
+                row = conn.execute(select).fetchone()
+                return row and row[0]
+
 
 
     def create_granule(self, collection_id, **kwargs):
@@ -105,9 +116,9 @@ class IndexDB():
             self.touch_collection(cid)
 
 
-    def get_collection_granules(self, collection_url, time_start, time_end):
+    def get_collection_granules(self, collection_name, time_start, time_end):
         with mutex:
-            cid = self.find_collection(url=collection_url)
+            cid = self.find_collection(name=collection_name)
             if cid == None:
                 return([])
 

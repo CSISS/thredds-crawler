@@ -2,7 +2,7 @@ from ..siphon.catalog import TDSCatalog, Dataset, CatalogRef
 
 from ..util.path import slugify, mkdir_p
 from ..util.http import http_getfile
-from ..util.datetime import timestamp_re
+from ..util.dtutil import timestamp_re
 
 from .base import BaseScraper
 

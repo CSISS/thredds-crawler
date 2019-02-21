@@ -6,7 +6,7 @@ from lxml import etree as ETree
 
 
 from .xml_editor import XMLEditor
-from ..util.datetime import timestamp_re, timestamp_range_generator
+from ..util.dtutil import timestamp_re, timestamp_range_generator
 from ..util.path import slugify
 
 iso_template_path = os.path.join(os.path.dirname(__file__), "../../templates/unidata-thredds-collection.xml.template")

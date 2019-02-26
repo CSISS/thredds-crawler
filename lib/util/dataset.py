@@ -31,3 +31,12 @@ def dataset_process_collection_name(ds):
     # print("*** %s ---> %s" % (ds.authority_ns_id, ds.collection_name ))
     if ds.collection_name:
         ds.collection_catalog_url = dataset_collection_catalog_url(ds)
+
+
+def dataset_access_url(ds):
+    url = ds.access_urls.get('HTTPServer')
+
+    if url == None and ds.authority == 'edu.ucar.rda':
+        url = 'https://rda.ucar.edu/' + ds.id.replace('files/g', 'data')
+
+    return url

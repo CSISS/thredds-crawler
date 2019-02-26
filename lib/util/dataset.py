@@ -39,4 +39,7 @@ def dataset_access_url(ds):
     if url == None and ds.authority == 'edu.ucar.rda':
         url = 'https://rda.ucar.edu/' + ds.id.replace('files/g', 'data')
 
+    if url == None:
+        url = ds.iso_md_url
+
     return url

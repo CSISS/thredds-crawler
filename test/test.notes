@@ -9,6 +9,8 @@ curl http://localhost:8002/harvest -X POST -d "catalog_url=http://thredds.ucar.e
 # index invariant (should collect granules not collections)
 curl http://localhost:8002/index -X POST -d "catalog_url=https://rda.ucar.edu/thredds/catalog/files/g/ds631.1/invariant/catalog.xml"
 
+# index ASR15.fcst3.2D
+curl http://localhost:8002/index -X POST -d "catalog_url=https://rda.ucar.edu/thredds/catalog/files/g/ds631.1/asr15.fcst3.2D/catalog.xml"
 
 # radar composite ntp single day
 curl http://localhost:8002/index -X POST -d "catalog_url=http://thredds.ucar.edu/thredds/catalog/nexrad/composite/gini/ntp/4km/20190218/catalog.xml"

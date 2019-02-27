@@ -32,23 +32,24 @@ class CollectionImportScraper(SimpleScraper):
         self.collection_generator = GranuleToCollection(output_dir=output_dir)
         self.index = index
 
-        self.collection_datasets = []
+        self.collection_granules = []
 
     def sync_index(self):
         # group by collection name
         collections = {}
-        for ds in self.collection_datasets:
-            collections.setdefault(ds.collection_name, []).append(ds)
+        for g in self.collection_granules:
+            collections.setdefault(g['collection_name'], []).append(g)
         
+        print("index sync started")
         # reset the index for each collection
-        for collection_name, datasets in collections.items():
+        for collection_name, granules in collections.items():
             print("clear granules for %s" % collection_name)
             self.index.clear_collection(collection_name)
-            print("insert %d granules" % len(datasets))
-            for ds in datasets:
-                self.index.add_granule(ds)
-                # print(ds.name)
+            print("insert %d granules" % len(granules))
+            for g in granules:
+                self.index.add_granule(g)
 
+        print("index sync done")
 
 
     def process_catalog(self, catalog):
@@ -78,7 +79,8 @@ class CollectionImportScraper(SimpleScraper):
             self.create_collection_csw_record(ds)
 
         # collect all granules we see
-        self.collection_datasets.append(ds)
+        granule = self.index.build_granule(ds)
+        self.collection_granules.append(granule)
 
     def create_collection_csw_record(self, ds):
         file = self.download_dataset(ds, directory=self.tmp_dir)

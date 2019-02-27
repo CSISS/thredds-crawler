@@ -11,6 +11,7 @@ import threading
 import os
 
 import datetime
+import time
 
 
 from flask import Flask, request
@@ -52,6 +53,7 @@ class IndexResource(Resource):
     def post(self):
         # get params
         # collection_name = request.form.get('collection_name')
+
         catalog_url = request.form.get('catalog_url')
         job_id = str(uuid.uuid4())[:8] # short id for uniqueness
 
@@ -62,7 +64,7 @@ class IndexResource(Resource):
         scraper = CollectionImportScraper(output_dir, index)
         scraper.add_catalog(catalog_url=catalog_url)
         
-        driver = ScraperDriver(scraper, 20, 1)
+        driver = ScraperDriver(scraper, 40, 1)
         driver.harvest()
 
         scraper.sync_index()
@@ -135,6 +137,8 @@ if __name__ == '__main__':
     RECORDS_DIR = '../records'
 else:
     RECORDS_DIR = '/records'
+    # RECORDS_DIR = '../records'
+
 
 INDEX_FILE = RECORDS_DIR + '/index.sqlite.db'
 

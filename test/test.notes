@@ -40,6 +40,9 @@ curl "http://localhost:8002/index?collection_name=edu.ucar.unidata:grib/NCEP/GEF
 # asr15km.anl.2D.mon.nc granules
 curl "http://localhost:8002/index?collection_name=edu.ucar.rda:files/g/ds631.1/asr15.anl.monthly/asr15km.anl.2D.mon.nc"
 
+# asr15km.fct.2D.nc granules
+curl "http://localhost:8002/index?collection_name=edu.ucar.rda:files/g/ds631.1/asr15.fcst3.2D/asr15km.fct.2D.nc"
+
 # GEFS granules with start and end times
 curl "http://localhost:8002/index?catalog_url=collection_name=edu.ucar.rda:files/g/ds631.1/asr15.anl.monthly/asr15km.anl.2D.mon.nc&start_time=2019-01-30T01:01:01&end_time=2019-02-01T23:59:59"
 

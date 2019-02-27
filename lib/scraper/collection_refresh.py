@@ -28,12 +28,12 @@ class CollectionRefreshScraper(BaseScraper):
         super().__init__()
 
         self.index = index
-        self.collection_datasets = []
+        self.collection_granules = []
 
     def sync_index(self):
-        print("insert %d granules" % len(self.collection_datasets))
-        for ds in self.collection_datasets:
-            self.index.add_granule(ds)
+        print("insert %d granules" % len(self.collection_granules))
+        for g in self.collection_granules:
+            self.index.add_granule(g)
 
 
     def set_refresh_scope(self, collection_name, start_time, end_time):
@@ -87,7 +87,8 @@ class CollectionRefreshScraper(BaseScraper):
 
         for ds_name, ds in catalog.datasets.items():
             dataset_process_collection_name(ds)
-            self.collection_datasets.append(ds)
+            granule = self.index.build_granule(ds)
+            self.collection_granules.append(granule)
  
         for ref_name, ref in catalog.catalog_refs.items():
             self.add_queue_item(ref)

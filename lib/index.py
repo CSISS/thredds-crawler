@@ -43,13 +43,21 @@ class Index():
     def clear_collection(self, collection_name):
         self.db.delete_collection_granules(collection_name)
 
-    def add_granule(self, ds):
+    def build_granule(self, ds):
         access_url = dataset_access_url(ds)
-
         start, end = time_coverage_to_time_span(**ds.time_coverage)
-        granule = {'name': ds.authority_ns_id, 'iso_url': ds.iso_md_url, 'access_url': access_url, 'time_start': start, 'time_end': end}
+
+        granule = { 'name': ds.authority_ns_id, 'iso_url': ds.iso_md_url, 
+                    'access_url': access_url, 'time_start': start, 'time_end': end,
+                    'collection_name': ds.collection_name}
+
+        return granule
         
-        cid = self.db.find_collection(name=ds.collection_name)
+
+    def add_granule(self, granule):
+        name = granule.pop('collection_name')
+        cid = self.db.find_collection(name=name)
+
         self.db.add_collection_granule(cid, granule)
 
     def get_granules(self, collection_name, start_time, end_time):

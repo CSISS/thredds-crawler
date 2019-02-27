@@ -24,7 +24,7 @@ class ScraperDriver():
 
     def worker_loop(self):
         thread_name = threading.current_thread().getName()
-        print("%s started" % thread_name)
+        # print("%s started" % thread_name)
 
         while True:
             try:
@@ -34,7 +34,7 @@ class ScraperDriver():
                 self.scraper.queue.task_done()
                 # print("%s  task done" % thread_name)
             except Empty:
-                print("%s timed out" % thread_name)
+                # print("%s timed out" % thread_name)
                 return
 
     def harvest(self):

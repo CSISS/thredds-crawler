@@ -18,19 +18,18 @@ def dataset_collection_name(ds):
     return None
 
 
-def dataset_collection_catalog_url(ds):
+def dataset_collection_catalog_url(catalog):
     # if catalog name contains a date then ds.catalog is not top level catalog
-    if timestamp_re.search_date(ds.catalog.ref_name) and ds.catalog.parent_catalog:
-        return ds.catalog.parent_catalog.catalog_url
-    return ds.catalog.catalog_url
+    if timestamp_re.search_date(catalog.ref_name) and catalog.parent_catalog:
+        return catalog.parent_catalog.catalog_url
+    return catalog.catalog_url
 
-def dataset_process_collection_name(ds):
-
+def dataset_process_collection(ds, catalog):
     ds.collection_name = dataset_collection_name(ds)
 
     # print("*** %s ---> %s" % (ds.authority_ns_id, ds.collection_name ))
     if ds.collection_name:
-        ds.collection_catalog_url = dataset_collection_catalog_url(ds)
+        ds.collection_catalog_url = dataset_collection_catalog_url(catalog)
 
 
 def dataset_access_url(ds):

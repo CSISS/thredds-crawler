@@ -13,8 +13,6 @@ from .simple import SimpleScraper
 from ..util.path import slugify, mkdir_p
 from ..util.http import http_getfile
 from ..util.dtutil import timestamp_re
-from ..util.dataset import dataset_process_collection_name
-
 
 from threading import Thread, Lock
 import threading
@@ -55,7 +53,6 @@ class CollectionImportScraper(SimpleScraper):
     def process_catalog(self, catalog):
         print("{p Cat} " + catalog.catalog_url)
         for ds_name, ds in catalog.datasets.items():
-            dataset_process_collection_name(ds)
             if ds.collection_name:
                 # this dataset belongs to a collection, we don't want to add it to the threaded queue
                 with mutex:

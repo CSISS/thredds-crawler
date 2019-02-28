@@ -14,8 +14,6 @@ from .collection_import import CollectionImportScraper
 from ..util.path import slugify, mkdir_p
 from ..util.http import http_getfile
 from ..util.dtutil import timestamp_re
-from ..util.dataset import dataset_process_collection_name
-
 
 from threading import Thread, Lock
 import threading
@@ -86,7 +84,6 @@ class CollectionRefreshScraper(BaseScraper):
         # print("{p Cat} " + catalog.catalog_url)
 
         for ds_name, ds in catalog.datasets.items():
-            dataset_process_collection_name(ds)
             granule = self.index.build_granule(ds)
             self.collection_granules.append(granule)
  

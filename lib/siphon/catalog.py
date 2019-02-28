@@ -23,6 +23,8 @@ import urllib
 from .http_util import create_http_session, urlopen
 from .metadata import TDSCatalogMetadata
 
+from ..util.dataset import dataset_process_collection
+
 logging.basicConfig(level=logging.ERROR)
 log = logging.getLogger(__name__)
 
@@ -281,7 +283,8 @@ class TDSCatalog(object):
 
                 ds = self.datasets[dsName]
                 ds.iso_md_url = self.iso_md_url(ds)
-                ds.set_authority_namespace_id()
+                ds.set_authority_namespace_id(self)
+                dataset_process_collection(ds, self)
 
             else:
                 self.datasets.pop(dsName)
@@ -344,9 +347,10 @@ class CatalogRef(object):
             An :class:`~xml.etree.ElementTree.Element` representing a catalogRef node
 
         """
+
+        self.parent_catalog = parent_catalog
         self.title = element_node.attrib['{http://www.w3.org/1999/xlink}title']
         self.name = element_node.attrib.get('name', self.title)
-        self.parent_catalog = parent_catalog
 
         # Resolve relative URLs
         href = element_node.attrib['{http://www.w3.org/1999/xlink}href']
@@ -412,7 +416,6 @@ class Dataset(object):
 
         # catalog is the THREDDs folder
         self.catalog_name = ''
-        self.catalog = catalog
 
         # collection is the logical series to which this dataset belongs
         # some collections are spread across multiple catalogs
@@ -443,10 +446,10 @@ class Dataset(object):
         """Return a string representation of the dataset."""
         return str("DS " + self.name)
 
-    def set_authority_namespace_id(self):
-        if self.catalog:
+    def set_authority_namespace_id(self, catalog):
+        if catalog:
             try:
-                self.authority = self.catalog.metadata['authority'][0]
+                self.authority = catalog.metadata['authority'][0]
                 self.authority_ns_id = self.authority + ':' + self.id
             except (IndexError, KeyError):
                 self.authority_ns_id = self.id

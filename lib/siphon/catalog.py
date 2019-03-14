@@ -23,8 +23,6 @@ import urllib
 from .http_util import create_http_session, urlopen
 from .metadata import TDSCatalogMetadata
 
-from ..util.dataset import dataset_process_collection
-
 logging.basicConfig(level=logging.ERROR)
 log = logging.getLogger(__name__)
 
@@ -160,7 +158,7 @@ class TDSCatalog(object):
 
     """
 
-    def __init__(self, catalog_url, ref_name = 'Unknown', parent_catalog = None):
+    def __init__(self, catalog_url, ref_name = 'Unknown', parent_catalog_url = None):
         """
         Initialize the TDSCatalog object.
 
@@ -201,7 +199,7 @@ class TDSCatalog(object):
         self.catalog_refs = DatasetCollection()
         self.metadata = {}
         self.ds_with_access_elements_to_process = []
-        self.parent_catalog = parent_catalog
+        self.parent_catalog_url = parent_catalog_url
 
         service_skip_count = 0
         service_skip = 0
@@ -243,7 +241,6 @@ class TDSCatalog(object):
                     self.services.append(CompoundService(child))
                     service_skip = self.services[-1].number_of_subservices
                     service_skip_count = 0
-
         self._process_datasets()
 
     def __str__(self):
@@ -256,12 +253,12 @@ class TDSCatalog(object):
             if element.attrib['urlPath'] == 'latest.xml':
                 catalog_url = self.catalog_url
 
-        ds = Dataset(element, catalog_url=catalog_url, catalog=self)
+        ds = Dataset(element, catalog_url=catalog_url)
         
         self.datasets[ds.name] = ds
 
     def _process_catalog_ref(self, element):
-        catalog_ref = CatalogRef(self.catalog_url, element, self)
+        catalog_ref = CatalogRef(self.catalog_url, element, self.catalog_url)
         self.catalog_refs[catalog_ref.title] = catalog_ref
 
     def _process_metadata(self, element, tag_type):
@@ -284,7 +281,6 @@ class TDSCatalog(object):
                 ds = self.datasets[dsName]
                 ds.iso_md_url = self.iso_md_url(ds)
                 ds.set_authority_namespace_id(self)
-                dataset_process_collection(ds, self)
 
             else:
                 self.datasets.pop(dsName)
@@ -335,7 +331,7 @@ class CatalogRef(object):
 
     """
 
-    def __init__(self, base_url, element_node, parent_catalog = None):
+    def __init__(self, base_url, element_node, parent_url):
         """
         Initialize the catalogRef object.
 
@@ -348,13 +344,13 @@ class CatalogRef(object):
 
         """
 
-        self.parent_catalog = parent_catalog
         self.title = element_node.attrib['{http://www.w3.org/1999/xlink}title']
         self.name = element_node.attrib.get('name', self.title)
 
         # Resolve relative URLs
         href = element_node.attrib['{http://www.w3.org/1999/xlink}href']
         self.href = urljoin(base_url, href)
+        self.parent_url = parent_url
 
     def __str__(self):
         """Return a string representation of the catalog reference."""
@@ -369,7 +365,7 @@ class CatalogRef(object):
             The referenced catalog
 
         """
-        return TDSCatalog(self.href, str(self), self.parent_catalog)
+        return TDSCatalog(self.href, str(self), self.parent_url)
 
     __repr__ = __str__
 
@@ -391,7 +387,7 @@ class Dataset(object):
 
     """
 
-    def __init__(self, element_node, catalog_url='', catalog=None):
+    def __init__(self, element_node, catalog_url=''):
         """Initialize the Dataset object.
 
         Parameters
@@ -449,10 +445,13 @@ class Dataset(object):
     def set_authority_namespace_id(self, catalog):
         if catalog:
             try:
+                self.authority = Dataset.default_authority
                 self.authority = catalog.metadata['authority'][0]
-                self.authority_ns_id = self.authority + ':' + self.id
             except (IndexError, KeyError):
-                self.authority_ns_id = self.id
+                pass
+
+            self.authority_ns_id = self.authority + ':' + self.id
+
 
     def resolve_time_coverage(element):
         time_coverage = {'start': None, 'end': None, 'duration': None}

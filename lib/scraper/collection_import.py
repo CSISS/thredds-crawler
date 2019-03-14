@@ -12,6 +12,7 @@ from .simple import SimpleScraper
 
 from ..util.path import slugify, mkdir_p
 from ..util.http import http_getfile
+from ..util.dataset import dataset_set_collection
 from ..util.dtutil import timestamp_re
 
 from threading import Thread, Lock
@@ -33,7 +34,6 @@ class CollectionImportScraper(SimpleScraper):
         self.collection_granules = []
 
     def sync_index(self):
-        # group by collection name
         collections = {}
         for g in self.collection_granules:
             collections.setdefault(g['collection_name'], []).append(g)
@@ -47,12 +47,19 @@ class CollectionImportScraper(SimpleScraper):
             for g in granules:
                 self.index.add_granule(g)
 
-        print("index sync done")
+        print("index sync complete")
+
+    def process_catalog_ref(self, catalog_ref):
+        catalog = catalog_ref.follow()
+        self.process_catalog(catalog)
+
 
 
     def process_catalog(self, catalog):
         print("{p Cat} " + catalog.catalog_url)
         for ds_name, ds in catalog.datasets.items():
+            dataset_set_collection(ds, catalog)
+
             if ds.collection_name:
                 # this dataset belongs to a collection, we don't want to add it to the threaded queue
                 with mutex:
@@ -65,7 +72,7 @@ class CollectionImportScraper(SimpleScraper):
         for ref_name, ref in catalog.catalog_refs.items():
             self.add_queue_item(ref)
         
-        print("{DONE Cat}" + catalog.catalog_url)
+        # print("{DONE Cat}" + catalog.catalog_url)
    
 
     def process_collection_dataset(self, ds):

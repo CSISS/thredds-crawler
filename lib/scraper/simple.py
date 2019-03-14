@@ -28,7 +28,7 @@ class SimpleScraper(BaseScraper):
             self.add_queue_item(ref)
 
     def process_catalog_ref(self, catalog_ref):
-        # print("{p CRef} " + catalog_ref.href)
+        print("{p CRef} " + catalog_ref.href)
         catalog = catalog_ref.follow()
         self.add_queue_item(catalog)
 

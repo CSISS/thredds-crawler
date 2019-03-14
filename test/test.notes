@@ -57,6 +57,8 @@ curl "http://localhost:8002/index?collection_name=Unidata/NEXRAD/NationalComposi
 curl "http://localhost:8002/index?collection_name=edu.ucar.unidata:noaaport-goes16/Mesoscale-2/Channel16/current/GOES16_Mesoscale-2_13.30_2km_34.0N_82.0W.nc4"
 
 
+curl "http://localhost:8002/index?collection_name=Unidata/NEXRAD/NationalComposite/GINI/hhc/1km/Level3_Composite_hhc_1km.gini"
+
 #### REINDEX while reading index
 
 # no reindex for RDA

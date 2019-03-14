@@ -34,6 +34,9 @@ from lib.util.dtutil import timestamp_range_generator, timestamp_parser
 
 from lib.util.path import mkdir_p
 
+from lib.siphon.catalog import TDSCatalog, Dataset, CatalogRef
+
+
 # from logging import info, debug,error
 
 import logging
@@ -55,6 +58,13 @@ class IndexResource(Resource):
         # collection_name = request.form.get('collection_name')
 
         catalog_url = request.form.get('catalog_url')
+
+        if 'thredds.ucar.edu' in catalog_url:
+            Dataset.default_authority = 'edu.ucar.unidata'
+
+        if 'rda.ucar.edu' in catalog_url:
+            Dataset.default_authority = 'edu.ucar.rda'
+
         job_id = str(uuid.uuid4())[:8] # short id for uniqueness
 
         index = Index(INDEX_FILE)

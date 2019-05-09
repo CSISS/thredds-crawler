@@ -97,4 +97,4 @@ class GranuleToCollection():
         collection_file = self.output_dir + '/' + slugify(template_keywords['title']) + '.xml'
 
         collection_xml_doc.tofile(collection_file)
-        print("[GENERATED]     %s" % collection_file)
+        # print("[GENERATED]     %s" % collection_file)

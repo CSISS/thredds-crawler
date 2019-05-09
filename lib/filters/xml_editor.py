@@ -35,7 +35,7 @@ class XMLEditor():
         try:
             return(self.etree.xpath(xpath, namespaces=XMLEditor.iso_namespaces)[0])
         except:
-            print("xpath matches nothing: %s" % xpath)
+            # print("xpath matches nothing: %s" % xpath)
             return(ETree.Element('empty'))
 
 

@@ -52,11 +52,11 @@ def retry(ExceptionToCheck, tries=4, delay=3, backoff=2, logger=None):
 
 
 
-@retry(Exception, tries=4)
+@retry(Exception, tries=2)
 def http_getfile(url, file):
     # print("http_getfile %s" % url)
     # if(not os.path.isfile(file)):
     urllib.request.urlretrieve(url, file)
-    print("[DL]      from %s\n          to    %s\n" % (url, file))
+    # print("[DL]      from %s\n          to    %s\n" % (url, file))
 
 

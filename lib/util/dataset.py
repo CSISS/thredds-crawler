@@ -4,7 +4,9 @@ from .dtutil import timestamp_re
 u = r"[\._/-]"
 nd = r"(?!\d)"
 series_member_re = re.compile(u + timestamp_re.date_time + nd + '|' + u + timestamp_re.date + nd)
+satellite_series_re = r"_s\d{14}_e\d{14}_c\d{14}"
 
+# OR_ABI-L2-DMWC-M6C02_G16_s20191150001198_e20191150003571_c20191150010441.nc -> OR_ABI-L2-DMWC-M6C02_G16.nc
 # Level3_Composite_ntp_4km_20190218_1735.gini           -> Level3_Composite_ntp_4km.gini
 # NDFD_NWS_CONUS_2p5km_20190119_0000.grib2              -> NDFD_NWS_CONUS_2p5km.grib2
 # GEFS_Global_1p0deg_Ensemble_ana_20190119_0000.grib2   -> GEFS_Global_1p0deg_Ensemble_ana.grib2
@@ -13,8 +15,14 @@ series_member_re = re.compile(u + timestamp_re.date_time + nd + '|' + u + timest
 # asr15km.fix.2000002100.XLONG.nc                       -> None  ## This looks like a timestamp but is not a timestamp
 def dataset_collection_name(ds):
     name = ds.authority_ns_id
+    
+    if re.search(satellite_series_re, name):
+        cname = re.sub(satellite_series_re, '', name)
+        return re.sub(timestamp_re.date + '/', '', cname)
+    
     if re.search(series_member_re, name):
         return re.sub(series_member_re, '', name)
+    
     return None
 
 

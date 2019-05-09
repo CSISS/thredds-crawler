@@ -27,7 +27,8 @@ today_date = datetime.date.today()
 class timestamp_re:
     yesterday = r"%d%02d%02d" % (yesterday_date.year, yesterday_date.month, yesterday_date.day)
     today = r"%d%02d%02d" % (today_date.year, today_date.month, today_date.day)
-    
+
+
     date = r"(19|20)\d\d[01]\d([0123]\d)?"
     time = r"(0[0-9]|1[0-9]|2[0-3])[0-5][0-9]([0-5][0-9])?"
     date_time = date + r"[_\.T]" + time

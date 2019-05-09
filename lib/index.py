@@ -38,7 +38,7 @@ class Index():
         return(col)
 
     def create_collection_for_granule(self, ds):
-        self.db.create_collection(name=ds.collection_name, url=ds.collection_catalog_url)
+        self.db.find_or_create_collection(name=ds.collection_name, url=ds.collection_catalog_url)
 
     def clear_collection(self, collection_name):
         self.db.delete_collection_granules(collection_name)
@@ -54,11 +54,10 @@ class Index():
         return granule
         
 
-    def add_granule(self, granule):
-        name = granule.pop('collection_name')
-        cid = self.db.find_collection(name=name)
+    def add_granules(self, collection_name, granules):
+        cid = self.db.find_collection(name=collection_name)
 
-        self.db.add_collection_granule(cid, granule)
+        self.db.add_collection_granules(cid, granules)
 
     def get_granules(self, collection_name, start_time, end_time):
         granules = self.db.get_collection_granules(collection_name, start_time, end_time)

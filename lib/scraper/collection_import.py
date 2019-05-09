@@ -45,14 +45,13 @@ class CollectionImportScraper(SimpleScraper):
         for collection_name, ds in self.collection_datasets.items():
             print("add collection " + collection_name)
             self.index.create_collection_for_granule(ds)
-            self.create_collection_csw_record(ds)
 
 
         for collection_name, granules in self.collection_granules.items():
             print("%d granules for %s" % (len(granules), collection_name))
             self.index.clear_collection(collection_name)
-            for g in granules:
-                self.index.add_granule(g)
+            # for g in granules:
+            self.index.add_granules(collection_name, granules)
 
         print("index sync complete (%.2f seconds)" % (time.time() - t), flush=True)
 
@@ -91,7 +90,15 @@ class CollectionImportScraper(SimpleScraper):
         granule = self.index.build_granule(ds)
         # print(collection_name)
 
-        self.collection_datasets[collection_name] = ds
+        if(not collection_name in self.collection_datasets):
+            self.collection_datasets[collection_name] = ds
+            try:
+                self.create_collection_csw_record(ds)
+            except Exception as e:
+                print(e)
+                print("[WARN] Failed to get dataset %s ISO metadta. It will not appear in CSW" % ds.authority_ns_id)
+
+
         self.collection_granules.setdefault(collection_name, []).append(granule)
 
         # print("AG %.2f %s" % (time.time() - t, ds.id), flush=True)
@@ -106,5 +113,5 @@ class CollectionImportScraper(SimpleScraper):
         self.collection_generator.generate_collection_iso_for_dataset(ds, file)
 
         td = time.time() - tstart
-        print("C %.2f %s" % (td, ds.id))
+        print("C %.2f %s" % (td, ds.collection_name))
 

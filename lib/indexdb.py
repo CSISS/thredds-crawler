@@ -110,19 +110,27 @@ class IndexDB():
 
 
     def create_granule(self, collection_id, **kwargs):
-        with mutex:
-            kwargs['collection_id'] = collection_id
-            with self.sql_engine.begin() as conn:
-                result = conn.execute(self.granules.insert(kwargs))
+        # with mutex:
+        kwargs['collection_id'] = collection_id
+        with self.sql_engine.begin() as conn:
+            result = conn.execute(self.granules.insert(kwargs))
 
+    def create_granules(self, collection_id, granules):
+        # with mutex:
+        for g in granules:
+            g.pop('collection_name')
+            g['collection_id'] = collection_id
 
-    def add_collection_granule(self, cid, granule):
-        with mutex:
-            g = self.find_granule(granule['name'])
-            if g == None:
-                self.create_granule(cid, **granule)
+        with self.sql_engine.begin() as conn:
+            result = conn.execute(self.granules.insert(), granules)
 
-            self.touch_collection(cid)
+    def add_collection_granules(self, cid, granules):
+        # with mutex:
+        # g = self.find_granule(granule['name'])
+        # if g == None:
+        self.create_granules(cid, granules)
+
+        self.touch_collection(cid)
 
 
     def get_collection_granules(self, collection_name, time_start, time_end):

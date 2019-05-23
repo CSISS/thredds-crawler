@@ -15,10 +15,9 @@ from .util.dataset import dataset_access_url
 
 
 class Index():
-    def __init__(self, index_file):
-        db_file = "sqlite:///" + index_file
-        print("database=" + db_file)
-        self.db = IndexDB(db_file, False)
+    def __init__(self, db_url):
+        print("database=" + db_url)
+        self.db = IndexDB(db_url, False)
 
         # self.db.drop_sql_tables()
         self.db.create_sql_tables()

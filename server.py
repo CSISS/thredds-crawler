@@ -67,7 +67,7 @@ class IndexResource(Resource):
 
         job_id = str(uuid.uuid4())[:8] # short id for uniqueness
 
-        index = Index(INDEX_FILE)
+        index = Index(INDEX_DB_URL)
 
         output_dir = RECORDS_DIR + '/result.' + job_id
 
@@ -89,7 +89,7 @@ class IndexResource(Resource):
         return output_dir
 
     def get(self):
-        index = Index(INDEX_FILE)
+        index = Index(INDEX_DB_URL)
 
         collection_name = request.args.get('collection_name')
         start_time = request.args.get('start_time')
@@ -150,8 +150,13 @@ else:
     # RECORDS_DIR = '../records'
 
 
-INDEX_FILE = RECORDS_DIR + '/index.sqlite.db'
 
+
+
+
+sqlite_index_url = "sqlite:///" + RECORDS_DIR + '/index.sqlite.db'
+
+INDEX_DB_URL = os.getenv('INDEX_DB_URL', sqlite_index_url)
 
 # granules_index = GranulesIndex(RECORDS_DIR)
 
@@ -165,6 +170,18 @@ api.add_resource(HarvestResource, '/harvest')
 
 # harvest.delete_lock('granules')
 # harvest.delete_lock('collections')
+
+## DEBUG HANDLER
+import sys, traceback, signal, threading
+
+def debug(sig, frame):
+    for thread_id, frame in sys._current_frames().items():
+        print('Stack for thread {}'.format(thread_id))
+        traceback.print_stack(frame)
+        print('')
+
+signal.signal(signal.SIGUSR1, debug)
+
 
 if __name__ == '__main__':
     print("starting application on port 8002")

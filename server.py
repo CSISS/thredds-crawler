@@ -54,6 +54,12 @@ import logging
 
 class IndexResource(Resource):
     def post(self):
+        print("1 TRAP SIGURG on " +  str(os.getpid()))
+        debug_thread = threading.Thread(target = debug_dump_watch)
+        debug_thread.start()
+
+
+
         # get params
         # collection_name = request.form.get('collection_name')
 
@@ -151,6 +157,7 @@ else:
 
 
 
+# RECORDS_DIR = '../records'
 
 
 
@@ -172,15 +179,31 @@ api.add_resource(HarvestResource, '/harvest')
 # harvest.delete_lock('collections')
 
 ## DEBUG HANDLER
-import sys, traceback, signal, threading
+import sys, traceback, signal, threading, datetime, time
 
-def debug(sig, frame):
-    for thread_id, frame in sys._current_frames().items():
-        print('Stack for thread {}'.format(thread_id))
-        traceback.print_stack(frame)
-        print('')
+mutex = threading.Lock()
 
-signal.signal(signal.SIGUSR1, debug)
+def debug_dump_watch():
+    while True:
+        print("Watching for /var/tmp/td", flush=True)
+        time.sleep(1)
+        try:
+            if os.path.isfile('/var/tmp/td'):
+                os.remove('/var/tmp/td')
+
+                with mutex:
+                    fname = '/var/tmp/trace-dump-' + datetime.datetime.now().strftime("%Y%m%d-%H%M%S") + '--' + str(os.getpid())
+                    print("DEBUG SIGNAL " + fname)
+                    
+                    for thread_id, frame in sys._current_frames().items():
+                        with open(fname, 'a+') as file:
+                            file.write('Stack for thread {}\n'.format(thread_id))
+                            traceback.print_stack(frame, file=file)
+                            file.write('\n\n')
+        except:
+            e = sys.exc_info()[0]
+            print(e)
+
 
 
 if __name__ == '__main__':
